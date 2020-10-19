@@ -1,0 +1,14 @@
+mutation Register($displayName: String!, $email: String!, $spotifyId: String!) {
+  register(
+    options: { displayName: $displayName, email: $email, spotifyId: $spotifyId }
+  ) {
+    errors {
+      field
+      message
+    }
+    user {
+      id
+      displayName
+    }
+  }
+}
