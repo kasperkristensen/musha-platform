@@ -29,7 +29,6 @@ const TrackSuggestionContainer = styled.div`
 `;
 
 function createArtistString(suggestions: any[]) {
-  console.log(suggestions.length);
   let artistsString = "";
   let i = 0;
   while (i < suggestions.length) {
@@ -37,7 +36,6 @@ function createArtistString(suggestions: any[]) {
     i++;
   }
   artistsString = artistsString.concat(`${suggestions[i]}`);
-  console.log(artistsString);
   return artistsString;
 }
 
@@ -56,8 +54,6 @@ export const Dashboard: React.FC<DashboardProps> = ({}) => {
       const suggestedArtists = await getSeveralArtist(
         createArtistString(suggestedTracks.data.tracks)
       );
-      console.log("Recently played: ", recents);
-      console.log("Suggested tracks: ", suggestedTracks);
       setState({
         recentlyPlayed: recents.data,
         suggestedTracks: suggestedTracks.data,

@@ -86,13 +86,16 @@ const ControlDiv = styled.div`
 `;
 
 const Buttons = styled.div`
-  display: flex;
+  ${theme.mixins.flexBetween}
   flex-direction: column;
   cursor: pointer;
+  height: 40px;
+  align-self: flex-end;
+  font-size: var(--fz-xxs);
 `;
 
 const ImageContainer = styled.div`
-  ${theme.mixins.flexCenter};
+  display: flex;
   height: 100%;
 `;
 
@@ -101,11 +104,9 @@ function getAllArtists(artists: []): string {
   let i = 0;
   while (artists.length - 1 > i) {
     allArtists = allArtists.concat(`${artists[i].name}, `);
-    console.log(`artist ${i}: `, artists[i].name);
     i++;
   }
   allArtists = allArtists.concat(artists[i].name);
-  console.log(`artist ${i}: `, artists[i].name);
 
   return allArtists;
 }

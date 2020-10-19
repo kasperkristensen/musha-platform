@@ -311,7 +311,12 @@ export const playTrack = (trackUri: string) => {
     uris: [trackUri],
   };
   const url = `https://api.spotify.com/v1/me/player/play`;
-  return axios({ method: "put", url, headers, data });
+  return axios({ method: "put", url, headers, data }).catch(async (err) => {
+    if (err.message) {
+    } else if (err.request) {
+      console.log(err.request);
+    }
+  });
 };
 
 /**

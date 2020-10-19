@@ -174,6 +174,9 @@ const Devices = styled.div`
   width: 130%;
   bottom: 30px;
   text-align: center;
+  -webkit-box-shadow: var(--shadow);
+  -moz-box-shadow: var(--shadow);
+  box-shadow: var(--shadow);
 
   ul {
     list-style-type: none;
@@ -182,6 +185,12 @@ const Devices = styled.div`
 
   ul li {
     padding: 10px 0;
+    color: var(--darkgrey);
+    transition: var(--transition);
+
+    &:hover {
+      color: var(--black);
+    }
   }
 `;
 
@@ -257,14 +266,22 @@ export const AppNav: React.FC<{}> = ({}) => {
   }, []);
 
   const handleButtonClick = () => {
-    setState((state) => {
-      return {
-        user: state.user,
-        playback: state.playback,
-        devices: state.devices,
-        open: !state.open,
+    if (state.open === false) {
+      const fetchDevices = async () => {
+        const devices = await getAvailableDevices();
+        setState({
+          ...state,
+          devices: devices?.data,
+          open: !state.open,
+        });
       };
-    });
+      fetchDevices();
+    } else {
+      setState({
+        ...state,
+        open: !state.open,
+      });
+    }
   };
 
   let user;
@@ -273,19 +290,20 @@ export const AppNav: React.FC<{}> = ({}) => {
   } else {
     user = "";
   }
-  let device;
+
+  let activeDevice;
   if (typeof state.playback !== "undefined" && state.playback !== null) {
-    device = state.playback;
+    activeDevice = state.playback;
   } else {
-    device = "";
+    activeDevice = "";
   }
+
   let devices;
   if (typeof state.devices !== "undefined" && state.devices !== null) {
     devices = state.devices;
   } else {
     devices = "";
   }
-  console.log("Devices: ", state.devices);
   return (
     <>
       <ControllerContainer>
@@ -387,17 +405,32 @@ export const AppNav: React.FC<{}> = ({}) => {
           {state.open && (
             <Devices>
               <ul>
-                {devices
-                  ? devices.devices.map(({ name, id }, i) => (
-                      <li key={i} onClick={() => transferPlayback(id)}>
-                        {name}
-                      </li>
-                    ))
-                  : null}
+                {devices.devices.length > 0 ? (
+                  devices.devices.map(({ name, id }, i) => (
+                    <li
+                      key={i}
+                      onClick={() => {
+                        transferPlayback(id);
+                        const fetchPlayback = async () => {
+                          const playback = await getCurrentPlayback();
+                          setState({
+                            ...state,
+                            playback: playback.data,
+                          });
+                        };
+                        fetchPlayback();
+                      }}
+                    >
+                      {name}
+                    </li>
+                  ))
+                ) : (
+                  <li>No devices found</li>
+                )}
               </ul>
             </Devices>
           )}
-          {devices ? devices.devices[0].name : "No Active Device"}
+          {activeDevice ? activeDevice.device.name : "No Active Device"}
           <FaChevronUp className="icon" />
         </Device>
       </Container>

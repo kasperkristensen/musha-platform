@@ -54,7 +54,6 @@ export const ArtistSuggestions: React.FC<ArtistSuggestionsProps> = (props) => {
   } else {
     fiveArtists = null;
   }
-  console.log("Five Suggested Artists: ", fiveArtists);
   return (
     <Container>
       <h3>Suggested Artists</h3>
