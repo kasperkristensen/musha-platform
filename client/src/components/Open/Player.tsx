@@ -59,6 +59,7 @@ const StyledControls = styled.div`
   font-size: 24px;
   width: 20%;
   margin-left: 5%;
+  line-height: 0;
 `;
 
 const StyledPlayPause = styled.div`
