@@ -8,10 +8,6 @@ import { getHashParams } from "../utils/getHashParams";
 
 const EXPIRATION_TIME = 1000 * 60 * 60; //1 HOUR IN MILLISECONDS
 
-let TokenTimeStamp: any = "";
-let LocalAccessToken = "";
-let LocalRefreshToken = "";
-
 const setTokenTimestamp = () =>
   window.localStorage.setItem("spotify_token_timestamp", Date.now().toString());
 const setLocalAccessToken = (localToken: any) => {
@@ -358,6 +354,24 @@ export const transferPlayback = (deviceId: string) => {
     device_ids: [deviceId],
   };
   return axios({ method: "put", url, headers, data: data });
+};
+
+/**
+ * Pause a User's Playback
+ * https://developer.spotify.com/documentation/web-api/reference/player/pause-a-users-playback/
+ */
+export const pausePlayback = () => {
+  const url = `https://api.spotify.com/v1/me/player/pause`;
+  return axios({ method: "put", url, headers });
+};
+
+/**
+ * Start/Resume a User's Playback
+ * https://developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
+ */
+export const startPlayback = () => {
+  const url = `https://api.spotify.com/v1/me/player/play`;
+  return axios({ method: "put", url, headers });
 };
 
 /**

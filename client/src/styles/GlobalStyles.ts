@@ -46,6 +46,7 @@ const GlobalStyles = createGlobalStyle`
     overflow: hidden;
     height: 100%;
   }
+  
   *,
   *:before,
   *:after {
@@ -60,6 +61,7 @@ const GlobalStyles = createGlobalStyle`
     max-width: 100%;
     overflow: auto;
     overflow: initial;
+    overscroll-behavior: none;
   }
 
  body {
@@ -75,6 +77,10 @@ const GlobalStyles = createGlobalStyle`
 
  a {
    text-decoration: none;
+ }
+
+ button {
+   font-family: 'Poppins', sans-serif;
  }
 
  main {

@@ -79,26 +79,6 @@ const LikeButton = styled.div`
   }
 `;
 
-const ControlDiv = styled.div`
-  ${theme.mixins.flexBetween};
-  flex-direction: column;
-  margin-left: 1.5rem;
-`;
-
-const Buttons = styled.div`
-  ${theme.mixins.flexBetween}
-  flex-direction: column;
-  cursor: pointer;
-  height: 40px;
-  align-self: flex-end;
-  font-size: var(--fz-xxs);
-`;
-
-const ImageContainer = styled.div`
-  display: flex;
-  height: 100%;
-`;
-
 function getAllArtists(artists: []): string {
   let allArtists = "";
   let i = 0;
@@ -150,31 +130,7 @@ export const TrackSuggestion: React.FC<TrackSuggestionProps> = (props) => {
               </LikeButton>
             </ButtonContainer>
           </div>
-          <ImageContainer>
-            <img src={suggestedTrack.album.images[1].url} />
-            <ControlDiv>
-              <Buttons>
-                <FaChevronUp
-                  className="up"
-                  onClick={() => {
-                    {
-                      count > 0 ? setCount(count - 1) : setCount(count);
-                    }
-                  }}
-                />
-                <FaChevronDown
-                  className="down"
-                  onClick={() => {
-                    {
-                      count < suggestedTracksLength - 1
-                        ? setCount(count + 1)
-                        : setCount(count);
-                    }
-                  }}
-                />
-              </Buttons>
-            </ControlDiv>
-          </ImageContainer>
+          <img src={suggestedTrack.album.images[1].url} />
         </>
       ) : null}
     </TrackBanner>

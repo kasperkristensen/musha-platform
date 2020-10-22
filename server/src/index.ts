@@ -19,8 +19,8 @@ import cookies from "cookie-parser";
 
 const REDIRECT_URI = "http://localhost:4000/callback";
 const FRONTEND_URI = "http://localhost:3000";
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const CLIENT_ID = "86cc5875a3fc41a98592aa7619cc53d9";
+const CLIENT_SECRET = "6e33d989f672467aa54c3922c65dda59";
 const STATE_KEY = "spotify_auth_state";
 
 const main = async () => {

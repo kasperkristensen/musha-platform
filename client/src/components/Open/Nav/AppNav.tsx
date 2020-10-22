@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import theme from "../../styles/theme";
+import theme from "../../../styles/theme";
 import Link from "next/link";
 import {
   MdDashboard,
@@ -18,8 +18,9 @@ import {
   getAvailableDevices,
   getCurrentPlayback,
   getUser,
-  transferPlayback,
-} from "../../spotify/api_calls";
+} from "../../../spotify/api_calls";
+import { Dropdown } from "./Dropdown";
+import { Player } from "../Player";
 
 const Container = styled.nav`
   ${theme.mixins.flexBetween};
@@ -32,7 +33,14 @@ const Container = styled.nav`
   text-align: left;
   align-items: flex-start;
   padding-left: 50px;
-  background-color: rgb(233, 236, 239);
+  background-color: white;
+  -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+`;
+
+const StyledNavigation = styled.div`
+  width: 100%;
 `;
 
 const ControllerContainer = styled.div`
@@ -80,7 +88,7 @@ const Logo = styled.div`
 
 const IconContainer = styled.div`
   ${theme.mixins.flexCenter}
-  background-color: var(--black);
+  background-color: transparent;
   width: 18px;
   height: 18px;
   border-radius: 18px;
@@ -89,13 +97,13 @@ const IconContainer = styled.div`
   &:hover,
   &:focus,
   &.active {
-    background-color: var(--blue);
+    color: var(--blue);
   }
 
   .icon {
-    width: 10px;
-    height: 10px;
-    color: white;
+    width: 14px;
+    height: 14px;
+    color: var(--black);
   }
 `;
 
@@ -113,11 +121,13 @@ const MenuItem = styled.div`
     font-weight: 600;
     font-size: var(--fz-xs);
     text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   ul {
     padding: 0;
     list-style-type: none;
+    width: 100%;
   }
 
   ul li {
@@ -140,56 +150,9 @@ const MenuItem = styled.div`
       color: var(--blue);
       border-right: 3px solid var(--blue);
 
-      .icon-container {
-        background-color: var(--blue);
+      .icon-container .icon {
+        color: var(--blue);
       }
-    }
-  }
-`;
-
-const Device = styled.button`
-  display: flex;
-  align-items: center;
-  margin: 30px 0;
-  text-align: left;
-  padding: 0;
-  left: 0;
-  font-size: var(--fz-xxs);
-  position: relative;
-  background-color: transparent;
-  border: none;
-  outline: none;
-  cursor: pointer;
-
-  .icon {
-    margin-left: 10px;
-  }
-`;
-
-const Devices = styled.div`
-  position: absolute;
-  background-color: white;
-  padding: 0px 10px;
-  left: 0;
-  width: 130%;
-  bottom: 30px;
-  text-align: center;
-  -webkit-box-shadow: var(--shadow);
-  -moz-box-shadow: var(--shadow);
-  box-shadow: var(--shadow);
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  ul li {
-    padding: 10px 0;
-    color: var(--darkgrey);
-    transition: var(--transition);
-
-    &:hover {
-      color: var(--black);
     }
   }
 `;
@@ -246,42 +209,58 @@ const StyledSearch = styled.div`
 export const AppNav: React.FC<{}> = ({}) => {
   const [state, setState] = useState({
     user: null,
-    playback: null,
     devices: null,
-    open: false,
   });
+  const [device, setDevice] = useState({
+    currentDevice: undefined,
+    currentTrack: undefined,
+    playStatus: false,
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       const data = await getUser();
-      const playback = await getCurrentPlayback();
       const devices = await getAvailableDevices();
       setState({
         user: data?.data,
-        playback: playback?.data,
         devices: devices?.data,
-        open: false,
       });
     };
     fetchData();
   }, []);
 
-  const handleButtonClick = () => {
-    if (state.open === false) {
-      const fetchDevices = async () => {
-        const devices = await getAvailableDevices();
-        setState({
-          ...state,
-          devices: devices?.data,
-          open: !state.open,
-        });
-      };
-      fetchDevices();
-    } else {
+  useEffect(() => {
+    const fetchDevice = async () => {
+      const playbackInfo = await getCurrentPlayback();
+      setDevice({
+        currentDevice:
+          playbackInfo.data && playbackInfo.data.device
+            ? playbackInfo.data.device.name
+            : "No Active Device",
+        currentTrack:
+          playbackInfo.data && playbackInfo.data.item
+            ? playbackInfo.data.item
+            : null,
+        playStatus: playbackInfo.data ? playbackInfo.data.is_playing : false,
+      });
+    };
+    fetchDevice();
+    const interval = setInterval(() => fetchDevice(), 5000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  const handleClick = () => {
+    const fetchData = async () => {
+      const devices = await getAvailableDevices();
       setState({
         ...state,
-        open: !state.open,
+        devices: devices?.data,
       });
-    }
+    };
+    fetchData();
   };
 
   let user;
@@ -289,13 +268,6 @@ export const AppNav: React.FC<{}> = ({}) => {
     user = state.user;
   } else {
     user = "";
-  }
-
-  let activeDevice;
-  if (typeof state.playback !== "undefined" && state.playback !== null) {
-    activeDevice = state.playback;
-  } else {
-    activeDevice = "";
   }
 
   let devices;
@@ -323,7 +295,7 @@ export const AppNav: React.FC<{}> = ({}) => {
         ) : null}
       </ControllerContainer>
       <Container>
-        <div>
+        <StyledNavigation>
           <Logo>
             <img src="/logo.svg" alt="logo" />
             <Link href="/">musha</Link>
@@ -399,41 +371,26 @@ export const AppNav: React.FC<{}> = ({}) => {
               </ul>
             </MenuItem>
           </Menu>
-        </div>
-
-        <Device onClick={() => handleButtonClick()}>
-          {state.open && (
-            <Devices>
-              <ul>
-                {devices.devices.length > 0 ? (
-                  devices.devices.map(({ name, id }, i) => (
-                    <li
-                      key={i}
-                      onClick={() => {
-                        transferPlayback(id);
-                        const fetchPlayback = async () => {
-                          const playback = await getCurrentPlayback();
-                          setState({
-                            ...state,
-                            playback: playback.data,
-                          });
-                        };
-                        fetchPlayback();
-                      }}
-                    >
-                      {name}
-                    </li>
-                  ))
-                ) : (
-                  <li>No devices found</li>
-                )}
-              </ul>
-            </Devices>
-          )}
-          {activeDevice ? activeDevice.device.name : "No Active Device"}
-          <FaChevronUp className="icon" />
-        </Device>
+        </StyledNavigation>
+        <Dropdown
+          placeholder="No Avtive Device"
+          value={device.currentDevice}
+          onChange={(d) =>
+            setDevice({
+              ...device,
+              currentDevice: d,
+            })
+          }
+          update={() => handleClick()}
+          options={
+            devices.devices && devices.devices.length > 0 ? devices.devices : []
+          }
+          direction="up"
+        />
       </Container>
+      {device.currentTrack && typeof device.currentTrack !== "undefined" ? (
+        <Player track={device.currentTrack} playStatus={device.playStatus} />
+      ) : null}
     </>
   );
 };

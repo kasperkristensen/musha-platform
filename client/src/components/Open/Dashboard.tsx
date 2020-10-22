@@ -6,6 +6,7 @@ import {
   getSeveralArtist,
 } from "../../spotify/api_calls";
 import { ArtistSuggestions } from "./ArtistSuggestions";
+import { Player } from "./Player";
 import { TrackSuggestion } from "./TrackSuggestion";
 
 interface DashboardProps {}
@@ -74,6 +75,20 @@ export const Dashboard: React.FC<DashboardProps> = ({}) => {
         <h3>Suggested Track</h3>
         <TrackSuggestion suggestedTracks={suggestions ? suggestions : null} />
       </TrackSuggestionContainer>
+      <ArtistSuggestions
+        suggestions={
+          state.suggestedArtists !== null
+            ? state.suggestedArtists.artists
+            : null
+        }
+      />
+      <ArtistSuggestions
+        suggestions={
+          state.suggestedArtists !== null
+            ? state.suggestedArtists.artists
+            : null
+        }
+      />
       <ArtistSuggestions
         suggestions={
           state.suggestedArtists !== null

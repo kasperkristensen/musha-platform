@@ -15,12 +15,24 @@ const Container = styled.div`
   background-color: white;
   border-radius: 5px;
   padding: 1rem 2rem 2rem 2rem;
+`;
 
+const ContainerText = styled.div`
+  ${theme.mixins.flexBetween};
   h3 {
     font-size: var(--fz-xs);
     font-weight: 600;
     color: var(--black);
     margin-bottom: 2rem;
+  }
+  a {
+    color: var(--darkgrey);
+    font-size: var(--fz-xs);
+    transition: var(--transition);
+
+    &:hover {
+      color: var(--black);
+    }
   }
 `;
 
@@ -56,7 +68,10 @@ export const ArtistSuggestions: React.FC<ArtistSuggestionsProps> = (props) => {
   }
   return (
     <Container>
-      <h3>Suggested Artists</h3>
+      <ContainerText>
+        <h3>Suggested Artists</h3>
+        <a href="#">See all</a>
+      </ContainerText>
       <ArtistContainer>
         {fiveArtists
           ? fiveArtists.map(({ id, followers, images, name }, i) => (
