@@ -48,7 +48,8 @@ const StyledTrack = styled.div.attrs((props) => ({
     css`
       display: flex;
       flex-direction: column;
-      margin-right: 30px;
+      margin-right: 50px;
+      scroll-snap-align: center;
       }
     `}
 `;

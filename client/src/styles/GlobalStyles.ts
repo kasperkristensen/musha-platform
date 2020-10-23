@@ -10,6 +10,8 @@ const GlobalStyles = createGlobalStyle`
   --darkgrey: rgb(161, 161, 172);
   --blue: rgb(88, 118, 246);
 
+  --gutter: 50px;
+
   --fz-xxxs: 10px;
   --fz-xxs: 12px;
   --fz-xs: 13px;

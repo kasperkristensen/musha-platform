@@ -10,7 +10,6 @@ import {
 import { ArtistSuggestions } from "./ArtistSuggestions";
 import { DiscoverGenres } from "./DiscoverGenres";
 import { TopTracks } from "./TopTracks";
-import { TrackSuggestion } from "./TrackSuggestion";
 import { TrackSuggestions } from "./TrackSuggestions";
 
 interface DashboardProps {}
@@ -18,11 +17,9 @@ interface DashboardProps {}
 const Container = styled.div`
   min-height: 100vh;
   width: 100%;
-  padding-left: 280px;
-  padding-top: 90px;
-  padding-bottom: 90px;
-  padding-right: 50px;
+  padding: 90px 50px 50px 280px;
   background-color: rgb(249, 249, 249);
+  overflow: hidden;
 `;
 
 const TrackSuggestionContainer = styled.div`

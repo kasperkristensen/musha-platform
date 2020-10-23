@@ -7,6 +7,10 @@ interface TopTracksProps {
   topTracks: any | null;
 }
 
+const Container = styled.div`
+  max-width: 700px;
+`;
+
 const StyledTopTracks = styled.div`
   display: flex;
   flex-direction: column;
@@ -16,7 +20,7 @@ export const TopTracks: React.FC<TopTracksProps> = (props) => {
   console.log(props.topTracks);
   const tracks = props.topTracks;
   return tracks ? (
-    <>
+    <Container>
       <SectionTitle main="Favorite Tracks" />
       <StyledTopTracks>
         {tracks.map((track, i) => (
@@ -33,6 +37,6 @@ export const TopTracks: React.FC<TopTracksProps> = (props) => {
           />
         ))}
       </StyledTopTracks>
-    </>
+    </Container>
   ) : null;
 };
