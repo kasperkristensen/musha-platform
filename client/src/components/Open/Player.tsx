@@ -22,6 +22,7 @@ const StyledPlayer = styled.div`
   -moz-box-shadow: var(--shadow);
   box-shadow: var(--shadow);
   border-radius: 5px;
+  z-index: 999;
 `;
 
 const StyledTrackInfo = styled.div`

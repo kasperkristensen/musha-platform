@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { getArtist } from "../../spotify/api_calls";
-import theme from "../../styles/theme";
-import { roundFollowers } from "../../utils/utilFunctions";
+import { getArtist } from "../../../spotify/api_calls";
+import theme from "../../../styles/theme";
+import { roundFollowers } from "../../../utils/utilFunctions";
 
 interface ArtistSuggestionsProps {
   suggestions: any[];

@@ -37,6 +37,7 @@ const Container = styled.nav`
   -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
 `;
 
 const StyledNavigation = styled.div`
@@ -67,6 +68,7 @@ const ControllerContainer = styled.div`
   left: 0;
   padding: 30px 50px 30px 280px;
   width: 100%;
+  z-index: 999;
 `;
 
 const Logo = styled.div`

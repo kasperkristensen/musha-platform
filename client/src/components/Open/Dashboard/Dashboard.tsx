@@ -4,10 +4,14 @@ import {
   getRecentlyPlayed,
   getRecommendationsForTracks,
   getSeveralArtist,
-} from "../../spotify/api_calls";
+  getTopArtistsShort,
+  getTopTracksShort,
+} from "../../../spotify/api_calls";
 import { ArtistSuggestions } from "./ArtistSuggestions";
-import { Player } from "./Player";
+import { DiscoverGenres } from "./DiscoverGenres";
+import { TopTracks } from "./TopTracks";
 import { TrackSuggestion } from "./TrackSuggestion";
+import { TrackSuggestions } from "./TrackSuggestions";
 
 interface DashboardProps {}
 
@@ -19,7 +23,6 @@ const Container = styled.div`
   padding-bottom: 90px;
   padding-right: 50px;
   background-color: rgb(249, 249, 249);
-  &: scroll;
 `;
 
 const TrackSuggestionContainer = styled.div`
@@ -43,6 +46,7 @@ function createArtistString(suggestions: any[]) {
 export const Dashboard: React.FC<DashboardProps> = ({}) => {
   const [state, setState] = useState({
     recentlyPlayed: null,
+    topTracks: null,
     suggestedTracks: null,
     suggestedArtists: null,
   });
@@ -52,13 +56,16 @@ export const Dashboard: React.FC<DashboardProps> = ({}) => {
       const suggestedTracks = await getRecommendationsForTracks(
         recents.data.items
       );
+      const artistSeeds = await getRecommendationsForTracks(recents.data.items);
       const suggestedArtists = await getSeveralArtist(
-        createArtistString(suggestedTracks.data.tracks)
+        createArtistString(artistSeeds.data.tracks)
       );
+      const topTracks = await getTopTracksShort();
       setState({
         recentlyPlayed: recents.data,
         suggestedTracks: suggestedTracks.data,
         suggestedArtists: suggestedArtists.data,
+        topTracks: topTracks.data,
       });
     };
     fetchData();
@@ -69,26 +76,20 @@ export const Dashboard: React.FC<DashboardProps> = ({}) => {
   } else {
     suggestions = null;
   }
+
+  var topTracks;
+  if (state.topTracks !== null) {
+    topTracks = state.topTracks;
+  } else {
+    topTracks = null;
+  }
+
   return (
     <Container>
-      <TrackSuggestionContainer>
-        <h3>Suggested Track</h3>
-        <TrackSuggestion suggestedTracks={suggestions ? suggestions : null} />
-      </TrackSuggestionContainer>
-      <ArtistSuggestions
-        suggestions={
-          state.suggestedArtists !== null
-            ? state.suggestedArtists.artists
-            : null
-        }
+      <TrackSuggestions
+        suggestedTracks={suggestions ? suggestions.tracks : null}
       />
-      <ArtistSuggestions
-        suggestions={
-          state.suggestedArtists !== null
-            ? state.suggestedArtists.artists
-            : null
-        }
-      />
+      <TopTracks topTracks={topTracks ? topTracks.items.slice(0, 5) : null} />
       <ArtistSuggestions
         suggestions={
           state.suggestedArtists !== null

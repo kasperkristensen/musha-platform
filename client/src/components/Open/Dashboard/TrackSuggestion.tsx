@@ -1,15 +1,8 @@
-import { AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import { GoHeart } from "react-icons/go";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import styled from "styled-components";
-import {
-  getRecentlyPlayed,
-  getRecommendationsForTracks,
-  playTrack,
-  saveTracks,
-} from "../../spotify/api_calls";
-import theme from "../../styles/theme";
+import { playTrack, saveTracks } from "../../../spotify/api_calls";
+import theme from "../../../styles/theme";
 
 const TrackBanner = styled.div`
   ${theme.mixins.flexBetween}
