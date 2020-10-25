@@ -1,8 +1,9 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import styled from "styled-components";
 import theme from "../../../styles/theme";
 import { SectionTitle } from "../SectionTitle";
+import { ArrowIcon } from "./ArrowIcon";
 import { TrackItem } from "./TrackItem";
 
 interface TrackSuggestionsProps {
@@ -16,7 +17,7 @@ const StyledSuggestions = styled.div`
   width: 100%;
   overflow-x: scroll;
   scroll-snap-type: x proximity;
-  padding: 20px 0;
+  padding: 20px;
   scroll-behavior: smooth;
 
   &::-webkit-scrollbar {
@@ -29,6 +30,12 @@ const Top = styled.div`
   align-items: center;
 `;
 
+const Icon = styled.div.attrs((props) => ({
+  enabled: props.enabled,
+}))`
+  display: block;
+`;
+
 const Controls = styled.div`
   ${theme.mixins.flexBetween}
   width: 70px;
@@ -36,19 +43,53 @@ const Controls = styled.div`
 
 export const TrackSuggestions: React.FC<TrackSuggestionsProps> = (props) => {
   const suggestedTracks = props.suggestedTracks;
-  const node = useRef(undefined);
+  const node = useRef<HTMLDivElement>(null);
 
+  const [scrollPosition, setScrollPosition] = useState({
+    min: true,
+    max: false,
+  });
+
+  /**
+   * Disables buttons when they can not scroll any further
+   * @param scrollOffset: number
+   */
   const handleClick = (scrollOffset: number) => {
-    node.current.scrollLeft += scrollOffset;
+    if (node.current !== null) {
+      var maxScrollLeft = node.current.scrollWidth - node.current.clientWidth;
+      node.current.scrollLeft += scrollOffset;
+      if (node.current.scrollLeft < 440) {
+        setScrollPosition({ ...scrollPosition, min: true });
+      }
+      if (node.current.scrollLeft > 440) {
+        setScrollPosition({ ...scrollPosition, min: false });
+      }
+      if (node.current.scrollLeft >= node.current.clientWidth - 440) {
+        setScrollPosition({ ...scrollPosition, max: true });
+      }
+      if (node.current.scrollLeft <= maxScrollLeft - 220) {
+        setScrollPosition({ ...scrollPosition, max: false });
+      }
+      console.log("Scroll Width: ", node.current.scrollLeft);
+      console.log("Client Width: ", node.current.clientWidth);
+    }
   };
 
   return suggestedTracks !== null ? (
     <>
       <Top>
-        <SectionTitle main="Suggested Tracks" tagline="" />
+        <SectionTitle main="Suggested Tracks" size="large" />
         <Controls>
-          <FaChevronLeft onClick={() => handleClick(-220)} />
-          <FaChevronRight onClick={() => handleClick(220)} />
+          <ArrowIcon
+            direction="left"
+            update={() => handleClick(-440)}
+            dis={scrollPosition.min}
+          />
+          <ArrowIcon
+            direction="right"
+            update={() => handleClick(440)}
+            dis={scrollPosition.max}
+          />
         </Controls>
       </Top>
       <StyledSuggestions ref={node}>

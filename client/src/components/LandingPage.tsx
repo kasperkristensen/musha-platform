@@ -1,9 +1,10 @@
-import React, { Component, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaSpotify } from "react-icons/fa";
 import styled from "styled-components";
 import theme from "../styles/theme";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 import { loaderDelay, navDelay } from "../utils/constants";
+import Link from "next/link";
 
 const Content = styled.div`
   ${theme.mixins.flexCenter};
@@ -17,6 +18,7 @@ const Content = styled.div`
 
   p {
     max-width: 600px;
+    color: var(--darkgrey);
   }
 `;
 
@@ -39,16 +41,20 @@ const ConnectButton = styled.div`
 
 const Message = styled.p`
   font-size: var(--fz-xxxs);
-  color: var(--grey);
+  color: var(--darkgrey);
   margin-top: 15px;
 
   a {
     text-decoration: underline;
-    color: var(--grey);
+    color: var(--darkgrey);
   }
 `;
 
-const LandingPage = () => {
+interface LandingPageProps {
+  loggedIn: boolean;
+}
+
+const LandingPage: React.FC<LandingPageProps> = ({ loggedIn }) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -67,19 +73,26 @@ const LandingPage = () => {
       your listening history and current mood.
     </p>
   );
-  const three = (
-    <a href="http://localhost:4000/login">
+  const three = loggedIn ? (
+    <Link href="/open/dashboard">
+      <ConnectButton>
+        <p className="buttonText">Open Web Player</p>
+      </ConnectButton>
+    </Link>
+  ) : (
+    <Link href="http://localhost:4000/login">
       <ConnectButton>
         <FaSpotify className="logo" />
         <p className="buttonText">Connect Spotify Premium</p>
       </ConnectButton>
-    </a>
+    </Link>
   );
-  const four = (
+
+  const four = !loggedIn ? (
     <Message>
       Log in to play music. <a>Why do I need Premium?</a>
     </Message>
-  );
+  ) : null;
 
   const items = [one, two, three, four];
 

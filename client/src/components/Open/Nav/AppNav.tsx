@@ -11,6 +11,7 @@ import {
   MdLibraryMusic,
   MdClose,
 } from "react-icons/md";
+import { useRouter } from "next/router";
 import { BsSpeaker, BsPersonFill, BsSearch } from "react-icons/bs";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { GoHeart } from "react-icons/go";
@@ -21,6 +22,8 @@ import {
 } from "../../../spotify/api_calls";
 import { Dropdown } from "./Dropdown";
 import { Player } from "../Player";
+import { SubNav } from "./SubNav";
+import { NavLink } from "./NavLink";
 
 const Container = styled.nav`
   ${theme.mixins.flexBetween};
@@ -38,6 +41,10 @@ const Container = styled.nav`
   -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
   z-index: 1000;
+
+  @media (${theme.bp.tabletL}) {
+    display: none;
+  }
 `;
 
 const StyledNavigation = styled.div`
@@ -69,6 +76,10 @@ const ControllerContainer = styled.div`
   padding: 30px 50px 30px 280px;
   width: 100%;
   z-index: 999;
+
+  @media (${theme.bp.tabletL}) {
+    padding: 30px 50px 30px 50px;
+  }
 `;
 
 const Logo = styled.div`
@@ -88,75 +99,11 @@ const Logo = styled.div`
   }
 `;
 
-const IconContainer = styled.div`
-  ${theme.mixins.flexCenter}
-  background-color: transparent;
-  width: 18px;
-  height: 18px;
-  border-radius: 18px;
-  margin-right: 10px;
-
-  &:hover,
-  &:focus,
-  &.active {
-    color: var(--blue);
-  }
-
-  .icon {
-    width: 14px;
-    height: 14px;
-    color: var(--black);
-  }
-`;
-
 const Menu = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   margin-top: 2.5rem;
-`;
-
-const MenuItem = styled.div`
-  width: 100%;
-  .title {
-    color: var(--darkgrey);
-    font-weight: 600;
-    font-size: var(--fz-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  ul {
-    padding: 0;
-    list-style-type: none;
-    width: 100%;
-  }
-
-  ul li {
-    display: flex;
-    align-items: center;
-    flex-direction: row;
-    font-size: var(--fz-xxs);
-    transition: var(--transition);
-    border-right: 3px solid transparent;
-    padding: 10px 0;
-    width: 100%;
-    height: 100%;
-    .icon-container {
-      transition: var(--transition);
-    }
-
-    &:hover,
-    &:focus,
-    &.active {
-      color: var(--blue);
-      border-right: 3px solid var(--blue);
-
-      .icon-container .icon {
-        color: var(--blue);
-      }
-    }
-  }
 `;
 
 const StyledUser = styled.div`
@@ -208,7 +155,7 @@ const StyledSearch = styled.div`
   }
 `;
 
-export const AppNav: React.FC<{}> = ({}) => {
+export const AppNav: React.FC<{}> = ({ children }) => {
   const [state, setState] = useState({
     user: null,
     devices: null,
@@ -303,75 +250,39 @@ export const AppNav: React.FC<{}> = ({}) => {
             <Link href="/">musha</Link>
           </Logo>
           <Menu>
-            <MenuItem>
-              <p className="title">Discover</p>
-              <ul>
-                <li>
-                  <IconContainer className="icon-container">
-                    <MdDashboard className="icon" />
-                  </IconContainer>
-                  Dashboard
-                </li>
-                <li>
-                  <IconContainer className="icon-container">
-                    <MdLibraryMusic className="icon" />
-                  </IconContainer>
-                  Genres
-                </li>
-                <li>
-                  <IconContainer className="icon-container">
-                    <MdAlbum className="icon" />
-                  </IconContainer>
-                  Albums
-                </li>
-                <li>
-                  <IconContainer className="icon-container">
-                    <BsPersonFill className="icon" />
-                  </IconContainer>
-                  Artist
-                </li>
-              </ul>
-            </MenuItem>
-            <MenuItem>
-              <p className="title">Sharing</p>
-              <ul>
-                <li>
-                  <IconContainer className="icon-container">
-                    <BsSpeaker className="icon" />
-                  </IconContainer>
-                  Listening Party
-                </li>
-                <li>
-                  <IconContainer className="icon-container">
-                    <MdPeople className="icon" />
-                  </IconContainer>
-                  Listening Room
-                </li>
-              </ul>
-            </MenuItem>
-            <MenuItem>
-              <p className="title">Library</p>
-              <ul>
-                <li>
-                  <IconContainer className="icon-container">
-                    <MdReplay className="icon" />
-                  </IconContainer>
-                  Recent
-                </li>
-                <li>
-                  <IconContainer className="icon-container">
-                    <MdPlaylistPlay className="icon" />
-                  </IconContainer>
-                  PlayLists
-                </li>
-                <li>
-                  <IconContainer className="icon-container">
-                    <GoHeart className="icon" />
-                  </IconContainer>
-                  Favourites
-                </li>
-              </ul>
-            </MenuItem>
+            <SubNav title="Menu">
+              <NavLink title="Dashboard" href="/open/dashboard">
+                <MdDashboard />
+              </NavLink>
+              <NavLink title="Genres" href="/open/genres">
+                <MdLibraryMusic />
+              </NavLink>
+              <NavLink title="Albums" href="/open/albums">
+                <MdAlbum />
+              </NavLink>
+              <NavLink title="Artists" href="/open/artists">
+                <BsPersonFill />
+              </NavLink>
+            </SubNav>
+            <SubNav title="Sharing">
+              <NavLink title="Listening Party" href="/open/listening_pary">
+                <BsSpeaker />
+              </NavLink>
+              <NavLink title="Listening Room" href="/open/listening_room">
+                <MdPeople />
+              </NavLink>
+            </SubNav>
+            <SubNav title="Library">
+              <NavLink title="Recent" href="/open/recent">
+                <MdReplay />
+              </NavLink>
+              <NavLink title="Playlists" href="/open/playlists">
+                <MdPlaylistPlay />
+              </NavLink>
+              <NavLink title="Favorites" href="/open/favorites">
+                <GoHeart />
+              </NavLink>
+            </SubNav>
           </Menu>
         </StyledNavigation>
         <Dropdown
@@ -393,6 +304,7 @@ export const AppNav: React.FC<{}> = ({}) => {
       {device.currentTrack && typeof device.currentTrack !== "undefined" ? (
         <Player track={device.currentTrack} playStatus={device.playStatus} />
       ) : null}
+      <div> {children} </div>
     </>
   );
 };

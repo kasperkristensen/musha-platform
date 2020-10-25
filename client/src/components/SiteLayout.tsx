@@ -41,7 +41,7 @@ const StyledHeader = styled.header`
 const StyledLinks = styled.div`
   display: flex;
   align-items: center;
-  color: var(--liteblack);
+  color: var(--darkgrey);
 
   @media (max-width: 768px) {
     display: none;
@@ -75,7 +75,7 @@ const StyledLinks = styled.div`
       a {
         padding: 10px;
         text-decoration: none;
-        color: var(--grey);
+        color: var(--darkgrey);
         transition: var(--transition);
 
         &:hover {
@@ -107,7 +107,11 @@ interface NavBarProps {
   avatar?: string;
 }
 
-export const NavBar: React.FC<NavBarProps> = (props) => {
+export const NavBar: React.FC<NavBarProps> = ({
+  children,
+  display_name,
+  avatar,
+}) => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -131,12 +135,10 @@ export const NavBar: React.FC<NavBarProps> = (props) => {
               <Link href="/login">About</Link>
             </li>
             <li>
-              {props.display_name ? (
+              {display_name ? (
                 <StyledUser>
-                  {props.avatar ? (
-                    <img src={props.avatar} alt="small avatar" />
-                  ) : null}
-                  <a>{props.display_name}</a>
+                  {avatar ? <img src={avatar} alt="small avatar" /> : null}
+                  <a>{display_name}</a>
                   <FaChevronDown className="icon" />
                 </StyledUser>
               ) : (
@@ -157,14 +159,17 @@ export const NavBar: React.FC<NavBarProps> = (props) => {
   const items = [one];
 
   return (
-    <TransitionGroup component={null}>
-      {isMounted &&
-        items.map((item, i) => (
-          <CSSTransition key={i} classNames="fadedown" timeout={loaderDelay}>
-            <div style={{ transitionDelay: `${i + 1}00ms` }}>{item}</div>
-          </CSSTransition>
-        ))}
-    </TransitionGroup>
+    <>
+      <TransitionGroup component={null}>
+        {isMounted &&
+          items.map((item, i) => (
+            <CSSTransition key={i} classNames="fadedown" timeout={loaderDelay}>
+              <div style={{ transitionDelay: `${i + 1}00ms` }}>{item}</div>
+            </CSSTransition>
+          ))}
+      </TransitionGroup>
+      <main>{children}</main>
+    </>
   );
 };
 

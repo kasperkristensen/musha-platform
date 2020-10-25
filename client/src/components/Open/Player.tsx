@@ -23,6 +23,14 @@ const StyledPlayer = styled.div`
   box-shadow: var(--shadow);
   border-radius: 5px;
   z-index: 999;
+
+  @media (${theme.bp.tabletL}) {
+    width: 100%;
+    height: 80px;
+    bottom: 0;
+    left: 0;
+    border-radius: 0px;
+  }
 `;
 
 const StyledTrackInfo = styled.div`

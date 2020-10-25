@@ -10,18 +10,6 @@ const AppContainer = styled.div`
   min-height: 100vh;
 `;
 
-const FauxPlayer = styled.div`
-  -webkit-box-shadow: var(--shadow);
-  -moz-box-shadow: var(--shadow);
-  box-shadow: var(--shadow);
-  background-color: white;
-  height: 70px;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  z-index: 999;
-`;
-
 class App extends Component {
   state = {
     token: "",
@@ -38,7 +26,6 @@ class App extends Component {
         <NavContainer />
         <AppContainer>
           <main>{token ? <User /> : <LandingPage />}</main>
-          {/* {token ? <FauxPlayer /> : null} */}
         </AppContainer>
       </>
     );

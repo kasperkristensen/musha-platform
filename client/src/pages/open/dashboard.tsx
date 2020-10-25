@@ -6,11 +6,12 @@ import {
   getSeveralArtist,
   getTopArtistsShort,
   getTopTracksShort,
-} from "../../../spotify/api_calls";
-import { ArtistSuggestions } from "./ArtistSuggestions";
-import { DiscoverGenres } from "./DiscoverGenres";
-import { TopTracks } from "./TopTracks";
-import { TrackSuggestions } from "./TrackSuggestions";
+} from "../../spotify/api_calls";
+import theme from "../../styles/theme";
+import { ArtistSuggestions } from "../../components/Open/Dashboard/ArtistSuggestions";
+import { TopTracks } from "../../components/Open/Dashboard/TopTracks";
+import { TrackSuggestions } from "../../components/Open/Dashboard/TrackSuggestions";
+import AppNav from "../../components/Open/Nav/AppNav";
 
 interface DashboardProps {}
 
@@ -20,13 +21,21 @@ const Container = styled.div`
   padding: 90px 50px 50px 280px;
   background-color: rgb(249, 249, 249);
   overflow: hidden;
+
+  @media (${theme.bp.tabletL}) {
+    padding: 90px 50px 90px 50px;
+  }
 `;
 
-const TrackSuggestionContainer = styled.div`
-  h3 {
-    font-size: var(--fz-xs);
-    font-weight: 600;
-  }
+const Preview = styled.section`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 70px;
+  width: 100%;
+  @media (${theme.bp.tabletL}) {
+    display: block;
+    margin-top: 70px;
+  } ;
 `;
 
 function createArtistString(suggestions: any[]) {
@@ -40,7 +49,7 @@ function createArtistString(suggestions: any[]) {
   return artistsString;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({}) => {
+const Dashboard: React.FC<DashboardProps> = ({}) => {
   const [state, setState] = useState({
     recentlyPlayed: null,
     topTracks: null,
@@ -82,18 +91,22 @@ export const Dashboard: React.FC<DashboardProps> = ({}) => {
   }
 
   return (
-    <Container>
-      <TrackSuggestions
-        suggestedTracks={suggestions ? suggestions.tracks : null}
-      />
-      <TopTracks topTracks={topTracks ? topTracks.items.slice(0, 5) : null} />
-      <ArtistSuggestions
-        suggestions={
-          state.suggestedArtists !== null
-            ? state.suggestedArtists.artists
-            : null
-        }
-      />
-    </Container>
+    <AppNav>
+      <Container>
+        <TrackSuggestions
+          suggestedTracks={suggestions ? suggestions.tracks : null}
+        />
+        <Preview>
+          <TopTracks
+            topTracks={topTracks ? topTracks.items.slice(0, 5) : null}
+          />
+          <TopTracks
+            topTracks={topTracks ? topTracks.items.slice(0, 5) : null}
+          />
+        </Preview>
+      </Container>
+    </AppNav>
   );
 };
+
+export default Dashboard;

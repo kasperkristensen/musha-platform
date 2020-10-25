@@ -21,7 +21,7 @@ export const TopTracks: React.FC<TopTracksProps> = (props) => {
   const tracks = props.topTracks;
   return tracks ? (
     <Container>
-      <SectionTitle main="Favorite Tracks" />
+      <SectionTitle main="Favorite Tracks" size="small" />
       <StyledTopTracks>
         {tracks.map((track, i) => (
           <TrackItem

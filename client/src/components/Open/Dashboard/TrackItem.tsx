@@ -9,6 +9,7 @@ import {
   concatArtists,
   millisToMinutesAndSeconds,
 } from "../../../utils/utilFunctions";
+import { MdOpenInNew } from "react-icons/md";
 
 interface TrackItemProps {
   title: string;
@@ -180,7 +181,6 @@ const StyledListBox = styled.div`
 `;
 
 const StyledTrackControls = styled.div`
-  margin: 0 10px;
   display: flex;
   align-items: center;
 `;
@@ -227,7 +227,7 @@ export const TrackItem: React.FC<TrackItemProps> = (props) => {
           <StyledOptions>
             <BsThreeDots />
           </StyledOptions>
-          <GoHeart />
+          <MdOpenInNew />
         </StyledTrackControls>
       </StyledListBox>
     </StyledTrack>

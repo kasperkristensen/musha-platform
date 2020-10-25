@@ -36,7 +36,7 @@ const GlobalStyles = createGlobalStyle`
 
   .big-heading {
     margin: 0;
-    font-size: clamp(40px, 8vw, 70px);
+    font-size: clamp(45px, 8vw, 70px);
   }
   .medium-heading {
     margin: 0;
@@ -90,7 +90,7 @@ const GlobalStyles = createGlobalStyle`
     width: 100%;
     max-width: 1600px;
     min-height: 100vh;
-    padding: 0 150px;
+    padding: 0 100px;
     @media (max-width: 1080px) {
       padding: 0 100px;
     }
