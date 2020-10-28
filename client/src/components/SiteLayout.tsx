@@ -124,7 +124,7 @@ export const NavBar: React.FC<NavBarProps> = ({
       <StyledHeader>
         <div className="logo">
           <img src="/logo.svg" alt="logo" />
-          <Link href="/">musha</Link>
+          <Link href="/">music</Link>
         </div>
         <StyledLinks>
           <ol>

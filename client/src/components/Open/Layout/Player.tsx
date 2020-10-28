@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { pausePlayback, startPlayback } from "../../spotify/api_calls";
-import theme from "../../styles/theme";
+import { pausePlayback, startPlayback } from "../../../spotify/api_calls";
+import theme from "../../../styles/theme";
 import { BsPauseFill, BsPlayFill, BsArrowsAngleExpand } from "react-icons/bs";
+import { concatArtists } from "../../../utils/utilFunctions";
 
 interface PlayerProps {
   track: any;
@@ -42,6 +43,7 @@ const StyledTrackInfo = styled.div`
     width: 45px;
     height: 45px;
     margin-right: 10px;
+    border-radius: 5%;
   }
 `;
 
@@ -89,7 +91,7 @@ export const Player: React.FC<PlayerProps> = (props) => {
             <img src={props.track.album.images[2].url} />
             <StyledTrackText>
               <h5>{props.track.name}</h5>
-              <p>{props.track.artists[0].name}</p>
+              <p>{concatArtists(props.track.artists)}</p>
             </StyledTrackText>
           </StyledTrackInfo>
           <StyledControls>

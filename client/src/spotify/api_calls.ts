@@ -1,4 +1,5 @@
 import axios from "axios";
+import { useEffect } from "react";
 import {
   useLoginMutation,
   useRegisterMutation,
@@ -200,6 +201,14 @@ export const doesUserFollowArtist = (artistId: string) =>
     }
   );
 
+export const getArtistTopTracks = (artistId: string) =>
+  axios.get(
+    `	https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=dk`,
+    {
+      headers,
+    }
+  );
+
 /**
  * Check if Users Follow a Playlist
  * https://developer.spotify.com/documentation/web-api/reference/follow/follow-artists-users/
@@ -292,6 +301,12 @@ export const getRecommendationsForTracks = (tracks: any) => {
 };
 
 /**
+ * Add an item to the end of the user's current playback queue.
+ * https://developer.spotify.com/console/post-queue/
+ */
+export const addItemToQueue = (trackUri: string) => {};
+
+/**
  * Get a Track
  * https://developer.spotify.com/documentation/web-api/reference/tracks/get-track/
  */
@@ -302,9 +317,9 @@ export const getTrack = (trackId: any) =>
  * Play a Track
  * https://developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
  */
-export const playTrack = (trackUri: string) => {
+export const playTrack = (trackUri: string | string[]) => {
   const data = {
-    uris: [trackUri],
+    uris: typeof trackUri === "string" ? [trackUri] : trackUri,
   };
   const url = `https://api.spotify.com/v1/me/player/play`;
   return axios({ method: "put", url, headers, data }).catch(async (err) => {
@@ -441,4 +456,17 @@ export const getTrackInfo = (trackId: any) => {
         };
       })
     );
+};
+
+export const dummySearch = (searchTerm: string) =>
+  axios.get(
+    `https://api.spotify.com/v1/search?${searchTerm}&type=artist&limit=7`,
+    {
+      headers,
+    }
+  );
+
+export const getSearchResults = (query: string, more: string) => {
+  useEffect(() => {}, [query]);
+  return null;
 };

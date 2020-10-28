@@ -11,21 +11,7 @@ import theme from "../../styles/theme";
 import { ArtistSuggestions } from "../../components/Open/Dashboard/ArtistSuggestions";
 import { TopTracks } from "../../components/Open/Dashboard/TopTracks";
 import { TrackSuggestions } from "../../components/Open/Dashboard/TrackSuggestions";
-import AppNav from "../../components/Open/Nav/AppNav";
-
-interface DashboardProps {}
-
-const Container = styled.div`
-  min-height: 100vh;
-  width: 100%;
-  padding: 90px 50px 50px 280px;
-  background-color: rgb(249, 249, 249);
-  overflow: hidden;
-
-  @media (${theme.bp.tabletL}) {
-    padding: 90px 50px 90px 50px;
-  }
-`;
+import OpenLayout from "../../components/Open/Layout/OpenLayout";
 
 const Preview = styled.section`
   display: grid;
@@ -49,7 +35,7 @@ function createArtistString(suggestions: any[]) {
   return artistsString;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({}) => {
+const Dashboard = () => {
   const [state, setState] = useState({
     recentlyPlayed: null,
     topTracks: null,
@@ -91,21 +77,15 @@ const Dashboard: React.FC<DashboardProps> = ({}) => {
   }
 
   return (
-    <AppNav>
-      <Container>
-        <TrackSuggestions
-          suggestedTracks={suggestions ? suggestions.tracks : null}
-        />
-        <Preview>
-          <TopTracks
-            topTracks={topTracks ? topTracks.items.slice(0, 5) : null}
-          />
-          <TopTracks
-            topTracks={topTracks ? topTracks.items.slice(0, 5) : null}
-          />
-        </Preview>
-      </Container>
-    </AppNav>
+    <>
+      <TrackSuggestions
+        suggestedTracks={suggestions ? suggestions.tracks : null}
+      />
+      <Preview>
+        <TopTracks topTracks={topTracks ? topTracks.items.slice(0, 5) : null} />
+        <TopTracks topTracks={topTracks ? topTracks.items.slice(0, 5) : null} />
+      </Preview>
+    </>
   );
 };
 

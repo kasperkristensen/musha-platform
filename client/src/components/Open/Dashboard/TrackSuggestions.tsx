@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import styled from "styled-components";
 import theme from "../../../styles/theme";
-import { SectionTitle } from "../SectionTitle";
+import { SectionTitle } from "../Layout/SectionTitle";
 import { ArrowIcon } from "./ArrowIcon";
 import { TrackItem } from "./TrackItem";
 

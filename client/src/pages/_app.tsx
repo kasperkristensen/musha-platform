@@ -1,7 +1,8 @@
 import Head from "next/head";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { createClient, Provider } from "urql";
+import OpenLayout from "../components/Open/Layout/OpenLayout";
 import GlobalStyles from "../styles/GlobalStyles";
 import theme from "../styles/theme";
 
@@ -13,6 +14,26 @@ const client = createClient({
 });
 
 function MyApp({ Component, pageProps }: any) {
+  const [loaded, setLoaded] = useState(false);
+  const [webPlayer, setWebPlayer] = useState(false);
+  useEffect(() => {
+    setLoaded(true);
+    return () => {
+      setLoaded(false);
+    };
+  }, []);
+
+  var pathName: string;
+  loaded ? (pathName = window.location.pathname) : (pathName = "");
+
+  useEffect(() => {
+    let regex = /\/open\//g;
+    regex.test(pathName) ? setWebPlayer(true) : setWebPlayer(false);
+    return () => {
+      setWebPlayer(false);
+    };
+  }, [pathName]);
+
   return (
     <Provider value={client}>
       <ThemeProvider theme={theme}>
@@ -25,7 +46,13 @@ function MyApp({ Component, pageProps }: any) {
           />
         </Head>
         <GlobalStyles />
-        <Component {...pageProps} />
+        {webPlayer ? (
+          <OpenLayout>
+            <Component {...pageProps} />
+          </OpenLayout>
+        ) : (
+          <Component {...pageProps} />
+        )}
       </ThemeProvider>
     </Provider>
   );
