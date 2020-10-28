@@ -21,9 +21,10 @@ import {
   getUser,
 } from "../../../spotify/api_calls";
 import { Dropdown } from "./Dropdown";
-import { Player } from "../Player";
+import { Player } from "./Player";
 import { SubNav } from "./SubNav";
 import { NavLink } from "./NavLink";
+import querystring from "querystring";
 
 const Container = styled.nav`
   ${theme.mixins.flexBetween};
@@ -49,6 +50,18 @@ const Container = styled.nav`
 
 const StyledNavigation = styled.div`
   width: 100%;
+`;
+
+const Content = styled.div`
+  min-height: 100vh;
+  width: 100%;
+  padding: 90px 50px 50px 280px;
+  background-color: rgb(249, 249, 249);
+  overflow: hidden;
+
+  @media (${theme.bp.tabletL}) {
+    padding: 90px 50px 90px 50px;
+  }
 `;
 
 const ControllerContainer = styled.div`
@@ -155,7 +168,7 @@ const StyledSearch = styled.div`
   }
 `;
 
-export const AppNav: React.FC<{}> = ({ children }) => {
+export const OpenLayout: React.FC<{}> = ({ children }) => {
   const [state, setState] = useState({
     user: null,
     devices: null,
@@ -212,6 +225,8 @@ export const AppNav: React.FC<{}> = ({ children }) => {
     fetchData();
   };
 
+  const router = useRouter();
+
   let user;
   if (typeof state.user !== "undefined" && state.user !== null) {
     user = state.user;
@@ -230,7 +245,13 @@ export const AppNav: React.FC<{}> = ({ children }) => {
       <ControllerContainer>
         <StyledSearch>
           <BsSearch className="icon" />
-          <input placeholder="Search" />
+          <input
+            placeholder="Search"
+            onChange={(e: React.FormEvent<HTMLInputElement>) => {
+              const newValue = { q: e.currentTarget.value };
+              router.push(`/open/search/${querystring.stringify(newValue)}`);
+            }}
+          />
           <MdClose />
         </StyledSearch>
         {user ? (
@@ -247,32 +268,13 @@ export const AppNav: React.FC<{}> = ({ children }) => {
         <StyledNavigation>
           <Logo>
             <img src="/logo.svg" alt="logo" />
-            <Link href="/">musha</Link>
+            <Link href="/">music</Link>
           </Logo>
           <Menu>
             <SubNav title="Menu">
               <NavLink title="Dashboard" href="/open/dashboard">
                 <MdDashboard />
               </NavLink>
-              <NavLink title="Genres" href="/open/genres">
-                <MdLibraryMusic />
-              </NavLink>
-              <NavLink title="Albums" href="/open/albums">
-                <MdAlbum />
-              </NavLink>
-              <NavLink title="Artists" href="/open/artists">
-                <BsPersonFill />
-              </NavLink>
-            </SubNav>
-            <SubNav title="Sharing">
-              <NavLink title="Listening Party" href="/open/listening_pary">
-                <BsSpeaker />
-              </NavLink>
-              <NavLink title="Listening Room" href="/open/listening_room">
-                <MdPeople />
-              </NavLink>
-            </SubNav>
-            <SubNav title="Library">
               <NavLink title="Recent" href="/open/recent">
                 <MdReplay />
               </NavLink>
@@ -281,6 +283,17 @@ export const AppNav: React.FC<{}> = ({ children }) => {
               </NavLink>
               <NavLink title="Favorites" href="/open/favorites">
                 <GoHeart />
+              </NavLink>
+            </SubNav>
+            <SubNav title="Sharing">
+              <NavLink
+                title="Listening Party"
+                href="/open/sharing/listening_party"
+              >
+                <BsSpeaker />
+              </NavLink>
+              <NavLink title="Listening Room" href="/open/listening_room">
+                <MdPeople />
               </NavLink>
             </SubNav>
           </Menu>
@@ -304,9 +317,9 @@ export const AppNav: React.FC<{}> = ({ children }) => {
       {device.currentTrack && typeof device.currentTrack !== "undefined" ? (
         <Player track={device.currentTrack} playStatus={device.playStatus} />
       ) : null}
-      <div> {children} </div>
+      <Content> {children} </Content>
     </>
   );
 };
 
-export default AppNav;
+export default OpenLayout;

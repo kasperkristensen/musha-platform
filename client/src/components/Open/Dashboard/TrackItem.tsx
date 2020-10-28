@@ -42,6 +42,9 @@ const StyledTrack = styled.div.attrs((props) => ({
         ${StyledOptions} {
           opacity: 1;
         }
+        ${StyledOverlay} {
+          opacity: 1;
+        }
       }
     `}
   ${(props) =>
@@ -65,11 +68,14 @@ const StyledCover = styled.div.attrs((props) => ({
   type: props.type || "list",
 }))`
   position: relative;
+  border-radius: 2%;
   img {
     width: 100%;
     height: 100%;
+    border-radius: 2%;
   }
   outline: none;
+  user-select: none;
 
   ${(props) =>
     props.type === "list" &&
@@ -98,6 +104,9 @@ const StyledCover = styled.div.attrs((props) => ({
         ${StyledOverlay} {
           opacity: 1;
         }
+        ${StyledCoverShadow} {
+          filter: blur(8px) brightness(40%);
+        }
       }
     `}
 `;
@@ -116,6 +125,8 @@ const StyledOverlay = styled.div`
   color: white;
   padding: 0 10%;
   z-index: 2;
+  user-select: none;
+  border-radius: 2%;
 
   ${(props) =>
     props.type === "list" &&
@@ -132,6 +143,7 @@ const StyledCoverShadow = styled.img`
   top: 10px;
   z-index: -1;
   outline: none;
+  transition: var(--transition);
 `;
 
 const StyledTrackInfo = styled.div.attrs((props) => ({
@@ -205,7 +217,7 @@ const StyledDuration = styled.p`
  */
 export const TrackItem: React.FC<TrackItemProps> = (props) => {
   return props.type === "list" ? (
-    <StyledTrack>
+    <StyledTrack onDoubleClick={() => playTrack(props.uri)}>
       <StyledListBox>
         {props.num ? <StyledTrackNumber>{props.num}</StyledTrackNumber> : null}
         <StyledCover type={props.type}>
@@ -232,7 +244,7 @@ export const TrackItem: React.FC<TrackItemProps> = (props) => {
       </StyledListBox>
     </StyledTrack>
   ) : (
-    <StyledTrack type={props.type}>
+    <StyledTrack type={props.type} onDoubleClick={() => playTrack(props.uri)}>
       {props.num ? <StyledTrackNumber>{props.num}</StyledTrackNumber> : null}
       <StyledCover type={props.type}>
         <StyledCoverShadow src={props.images[0].url} />

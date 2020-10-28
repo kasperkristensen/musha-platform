@@ -1,15 +1,13 @@
 import React from "react";
 import styled from "styled-components";
-import { SectionTitle } from "../SectionTitle";
+import { SectionTitle } from "../Layout/SectionTitle";
 import { TrackItem } from "./TrackItem";
 
 interface TopTracksProps {
   topTracks: any | null;
 }
 
-const Container = styled.div`
-  max-width: 700px;
-`;
+const Container = styled.div``;
 
 const StyledTopTracks = styled.div`
   display: flex;
@@ -21,7 +19,7 @@ export const TopTracks: React.FC<TopTracksProps> = (props) => {
   const tracks = props.topTracks;
   return tracks ? (
     <Container>
-      <SectionTitle main="Favorite Tracks" size="small" />
+      <SectionTitle main="Most Played Songs" size="small" />
       <StyledTopTracks>
         {tracks.map((track, i) => (
           <TrackItem

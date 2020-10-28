@@ -29,3 +29,11 @@ export function millisToMinutesAndSeconds(inputMs: string) {
     ? minutes + 1 + ":00"
     : minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
 }
+
+export const getUris = (tracks: any[]) => {
+  let uris: string[] = [];
+  for (let i = 0; i < tracks.length; i++) {
+    uris.push(tracks[i].uri);
+  }
+  return uris;
+};
