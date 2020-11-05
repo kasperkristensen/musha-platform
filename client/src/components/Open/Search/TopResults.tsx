@@ -1,34 +1,55 @@
+import { useRouter } from "next/router";
 import React from "react";
 import styled from "styled-components";
 import theme from "../../../styles/theme";
-import { SearchItemArtist } from "./SearchItem";
+import { concatArtists } from "../../../utils/utilFunctions";
+import IconLoader from "../../icons/loader";
+import { SearchItemTrack } from "./Tracks/SearchItemTrack";
 
 interface TopResultsProps {
-  artists: any[] | null;
+  type: string;
+  query: string | null;
 }
 
 const Container = styled.div``;
 
-const ArtistsContainer = styled.div`
+const ChildrenContainer = styled.div`
   ${theme.mixins.flexBetween};
   flex-direction: row;
 `;
 
-export const TopResults: React.FC<TopResultsProps> = ({ artists }) => {
-  return artists ? (
+const Top = styled.div`
+  ${theme.mixins.flexBetween};
+  align-items: center;
+`;
+
+const Button = styled.button`
+  background: none;
+  border: none;
+  color: var(--darkgrey);
+  transition: var(--transition);
+  outline: none;
+  &:hover,
+  &:focus {
+    color: var(--black);
+  }
+`;
+
+export const TopResults: React.FC<TopResultsProps> = ({
+  children,
+  query,
+  type,
+}) => {
+  const router = useRouter();
+  return children ? (
     <Container>
-      <ArtistsContainer>
-        {artists.map((artist, i) => (
-          <SearchItemArtist
-            key={i}
-            imgUrl={artist.images.length > 0 ? artist.images[1].url : null}
-            name={artist.name}
-            id={artist.id}
-          />
-        ))}
-      </ArtistsContainer>
+      <Top>
+        <h1>{`${type.charAt(0).toUpperCase()}${type.slice(1)}`}</h1>
+        <Button onClick={() => router.push(`${type}/${query}`)}>See All</Button>
+      </Top>
+      <ChildrenContainer>{children}</ChildrenContainer>
     </Container>
   ) : (
-    <p>loading...</p>
+    <IconLoader />
   );
 };

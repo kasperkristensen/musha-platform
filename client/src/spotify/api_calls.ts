@@ -1,11 +1,24 @@
-import axios from "axios";
-import { useEffect } from "react";
+import axios, { AxiosResponse } from "axios";
+import { useEffect, useState } from "react";
 import {
   useLoginMutation,
   useRegisterMutation,
   useUserQuery,
 } from "../generated/graphql";
 import { getHashParams } from "../utils/getHashParams";
+import {
+  fullArtistObject,
+  fullTrackObject,
+  pagingObject,
+  playHistoryObject,
+  playHistoryResponse,
+  recommendationsResponseObject,
+  serverResponse,
+  simplifiedAlbumObject,
+  simplifiedArtistObject,
+  simplifiedPlaylistObject,
+  simplifiedTrackObject,
+} from "../types/spotify/objectInterfaces";
 
 const EXPIRATION_TIME = 1000 * 60 * 60; //1 HOUR IN MILLISECONDS
 
@@ -113,6 +126,51 @@ export const getRecentlyPlayed = () =>
     headers,
   });
 
+export const useGetRecentlyPlayed = () => {
+  const [playHistory, setPlayHistory] = useState<playHistoryResponse | null>(
+    null
+  );
+  const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let unmounted = false;
+    const source = axios.CancelToken.source();
+    axios
+      .get("https://api.spotify.com/v1/me/player/recently-played", {
+        headers,
+      })
+      .then((a) => {
+        if (!unmounted) {
+          setPlayHistory(a.data);
+          setLoading(false);
+        }
+      })
+      .catch(function (err: Error) {
+        if (!unmounted) {
+          setError(true);
+          setErrorMessage(err.message);
+          setLoading(false);
+          if (axios.isCancel(err)) {
+            console.log(`The request was cancelled: ${err.message}`);
+          } else {
+            console.log(
+              `An error has occured while retrieving a users track history - `,
+              err.message
+            );
+          }
+        }
+      });
+
+    return function () {
+      unmounted = true;
+    };
+  }, []);
+
+  return { playHistory, loading, error, errorMessage };
+};
+
 /**
  * Get a List of Current User's Playlists
  * https://developer.spotify.com/documentation/web-api/reference/playlists/get-a-list-of-current-users-playlists/
@@ -138,11 +196,65 @@ export const getTopArtistsMedium = () =>
       headers,
     }
   );
-export const getTopArtistsLong = () =>
-  axios.get(
-    "https://api.spotify.com/v1/me/top/artists?limit=50&time_range=long_term",
-    { headers }
-  );
+
+/**
+ * Returns a users top artists for a given time range.
+ * The function takes an enum as its parameter;
+ * 1 equals short term (14 days), 2 equals medium term (2 months)
+ * and 3 equals long term (all time). If no time range is provided
+ * then the function defaults to short term.
+ * @implements https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/
+ * @param timeRange
+ */
+export const useGetTopArtists = (timeRange: 1 | 2 | 3 = 1) => {
+  const [artists, setArtists] = useState<fullArtistObject[] | null>(null);
+  const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  let term: string = "short_term";
+  timeRange === 1
+    ? null
+    : timeRange === 2
+    ? (term = "medium_term")
+    : (term = "long_term");
+  useEffect(() => {
+    let unmounted = false;
+    const source = axios.CancelToken.source();
+    axios
+      .get(
+        `https://api.spotify.com/v1/me/top/artists?limit=50&time_range=${term}`,
+        { headers, cancelToken: source.token }
+      )
+      .then((a) => {
+        if (!unmounted) {
+          const pagingObject: pagingObject = a.data;
+          setArtists(pagingObject.items as fullArtistObject[]);
+          setLoading(false);
+        }
+      })
+      .catch(function (err: Error) {
+        if (!unmounted) {
+          setError(true);
+          setErrorMessage(err.message);
+          setLoading(false);
+          if (axios.isCancel(err)) {
+            console.log(`The request was cancelled: ${err.message}`);
+          } else {
+            console.log(
+              `An error has occured while retrieving a the users top artists - `,
+              err.message
+            );
+          }
+        }
+      });
+
+    return function () {
+      unmounted = true;
+    };
+  }, []);
+
+  return { artists, loading, error, errorMessage };
+};
 
 /**
  * Get a User's Top Tracks
@@ -165,6 +277,65 @@ export const getTopTracksLong = () =>
     "https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=long_term",
     { headers }
   );
+
+/**
+ * Returns a users top tracks for a given time range.
+ * The function takes an enum as its parameter;
+ * 1 equals short term (14 days), 2 equals medium term (2 months)
+ * and 3 equals long term (all time). If no time range is provided
+ * then the function defaults to short term.
+ * @implements https://developer.spotify.com/documentation/web-api/reference/personalization/get-users-top-artists-and-tracks/
+ * @param timeRange
+ */
+export const useGetTopTracks = (timeRange: 1 | 2 | 3 = 1) => {
+  const [tracks, setTracks] = useState<fullTrackObject[] | null>(null);
+  const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  let term: string = "short_term";
+  timeRange === 1
+    ? null
+    : timeRange === 2
+    ? (term = "medium_term")
+    : (term = "long_term");
+  useEffect(() => {
+    let unmounted = false;
+    const source = axios.CancelToken.source();
+    axios
+      .get(
+        `https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=${term}`,
+        { headers, cancelToken: source.token }
+      )
+      .then((a) => {
+        if (!unmounted) {
+          const pagingObject: pagingObject = a.data;
+          setTracks(pagingObject.items as fullTrackObject[]);
+          setLoading(false);
+        }
+      })
+      .catch(function (err: Error) {
+        if (!unmounted) {
+          setError(true);
+          setErrorMessage(err.message);
+          setLoading(false);
+          if (axios.isCancel(err)) {
+            console.log(`The request was cancelled: ${err.message}`);
+          } else {
+            console.log(
+              `An error has occured while retrieving a the users top artists - `,
+              err.message
+            );
+          }
+        }
+      });
+
+    return function () {
+      unmounted = true;
+    };
+  }, []);
+
+  return { tracks, loading, error, errorMessage };
+};
 
 /**
  * Get an Artist
@@ -300,6 +471,126 @@ export const getRecommendationsForTracks = (tracks: any) => {
   );
 };
 
+export const useGetRecommendationsForTracks = (
+  tracks: simplifiedTrackObject[] | fullTrackObject[]
+) => {
+  const [
+    recommendationsResponse,
+    setRecommendationsResponse,
+  ] = useState<recommendationsResponseObject | null>(null);
+  const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let unmounted = false;
+    const source = axios.CancelToken.source();
+    const shuffledTracks = tracks.sort(() => 0.5 - Math.random());
+    const seed_tracks = getTrackIds(shuffledTracks.slice(0, 5));
+    const seed_artists = "";
+    const seed_genres = "";
+    axios
+      .get(
+        `https://api.spotify.com/v1/recommendations?seed_tracks=${seed_tracks}&seed_artists=${seed_artists}&seed_genres=${seed_genres}`,
+        {
+          headers,
+        }
+      )
+      .then((a) => {
+        if (!unmounted) {
+          setRecommendationsResponse(a.data);
+          setLoading(false);
+        }
+      })
+      .catch(function (err: Error) {
+        if (!unmounted) {
+          setError(true);
+          setErrorMessage(err.message);
+          setLoading(false);
+          if (axios.isCancel(err)) {
+            console.log(`The request was cancelled: ${err.message}`);
+          } else {
+            console.log(
+              `An error has occured while generating reccomendations`,
+              err.message
+            );
+          }
+        }
+      });
+
+    return function () {
+      unmounted = true;
+    };
+  }, []);
+
+  return { recommendationsResponse, loading, error, errorMessage };
+};
+
+/**
+ * Returns a recommendation response containing an array of tracks and an array of seeds based on the users recent listening history.
+ */
+export const useGetRecommendationsForTracksOnRecents = () => {
+  const [
+    recommendationsResponse,
+    setRecommendationsResponse,
+  ] = useState<recommendationsResponseObject | null>(null);
+  const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let unmounted = false;
+    let tracks: playHistoryResponse;
+    axios
+      .get("https://api.spotify.com/v1/me/player/recently-played", {
+        headers,
+      })
+      .then((r) => {
+        if (!unmounted) {
+          tracks = r.data;
+          const shuffledTracks = tracks.items.sort(() => 0.5 - Math.random());
+          const seed_tracks = getTrackIds(shuffledTracks.slice(0, 5));
+          const seed_artists = "";
+          const seed_genres = "";
+          axios
+            .get(
+              `https://api.spotify.com/v1/recommendations?seed_tracks=${seed_tracks}&seed_artists=${seed_artists}&seed_genres=${seed_genres}`,
+              {
+                headers,
+              }
+            )
+            .then((a) => {
+              if (!unmounted) {
+                setRecommendationsResponse(a.data);
+                setLoading(false);
+              }
+            })
+            .catch(function (err: Error) {
+              if (!unmounted) {
+                setError(true);
+                setErrorMessage(err.message);
+                setLoading(false);
+                if (axios.isCancel(err)) {
+                  console.log(`The request was cancelled: ${err.message}`);
+                } else {
+                  console.log(
+                    `An error has occured while generating reccomendations`,
+                    err.message
+                  );
+                }
+              }
+            });
+        }
+      });
+
+    return function () {
+      unmounted = true;
+    };
+  }, []);
+
+  return { recommendationsResponse, loading, error, errorMessage };
+};
+
 /**
  * Add an item to the end of the user's current playback queue.
  * https://developer.spotify.com/console/post-queue/
@@ -311,23 +602,77 @@ export const addItemToQueue = (trackUri: string) => {};
  * https://developer.spotify.com/documentation/web-api/reference/tracks/get-track/
  */
 export const getTrack = (trackId: any) =>
-  axios.get(`https://api.spotify.com/v1/tracks/${trackId}`, { headers });
+  axios.get(`https://api.spotify.com/v1/tracks/${trackId}`, {
+    headers,
+  });
 
 /**
- * Play a Track
+ * Get a Track
+ * https://developer.spotify.com/documentation/web-api/reference/tracks/get-track/
+ */
+export const useGetTrack = (trackId: string) => {
+  const [data, setData] = useState<AxiosResponse | null>(null);
+  const [track, setTrack] = useState<fullTrackObject | null>(null);
+  const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let unmounted = false;
+    const source = axios.CancelToken.source();
+    axios
+      .get(`https://api.spotify.com/v1/tracks/${trackId}`, {
+        headers,
+        cancelToken: source.token,
+      })
+      .then((a) => {
+        if (!unmounted) {
+          setData(a);
+          setTrack(a.data);
+          setLoading(false);
+        }
+      })
+      .catch(function (err: Error) {
+        if (!unmounted) {
+          setError(true);
+          setErrorMessage(err.message);
+          setLoading(false);
+          if (axios.isCancel(err)) {
+            console.log(`The request was cancelled: ${err.message}`);
+          } else {
+            console.log(
+              `An error has occured while retrieving a track with ID: ${trackId} - `,
+              err.message
+            );
+          }
+        }
+      });
+
+    return function () {
+      unmounted = true;
+    };
+  }, [trackId]);
+
+  return { data, track, loading, error, errorMessage };
+};
+
+/**
+ * Play a track or several tracks, depending on whether the given parm is a string or string array.
  * https://developer.spotify.com/documentation/web-api/reference/player/start-a-users-playback/
  */
-export const playTrack = (trackUri: string | string[]) => {
+export const playTrack = async (trackUri: string | string[]) => {
   const data = {
     uris: typeof trackUri === "string" ? [trackUri] : trackUri,
   };
   const url = `https://api.spotify.com/v1/me/player/play`;
-  return axios({ method: "put", url, headers, data }).catch(async (err) => {
+  try {
+    return axios({ method: "put", url, headers, data });
+  } catch (err) {
     if (err.message) {
     } else if (err.request) {
       console.log(err.request);
     }
-  });
+  }
 };
 
 /**
@@ -422,7 +767,7 @@ export const getUserInfo = () => {
       getUser(),
       getFollowing(),
       getPlaylists(),
-      getTopArtistsLong(),
+      // useGetTopArtists(3),
       getTopTracksLong(),
     ])
     .then(
@@ -458,15 +803,147 @@ export const getTrackInfo = (trackId: any) => {
     );
 };
 
-export const dummySearch = (searchTerm: string) =>
+export const topSearchResultsArtists = (query: string) =>
+  axios.get(`https://api.spotify.com/v1/search?${query}&type=artist&limit=7`, {
+    headers,
+  });
+
+export const topSearchResultsTracks = (query: string) =>
+  axios.get(`https://api.spotify.com/v1/search?${query}&type=track&limit=7`, {
+    headers,
+  });
+
+export const useGetTopResults = (query: string) => {
+  const [topTracks, setTracks] = useState<fullTrackObject[] | null>(null);
+  const [topArtists, setArtists] = useState<fullArtistObject[] | null>(null);
+  const [topAlbums, setAlbums] = useState<simplifiedAlbumObject[] | null>(null);
+  const [topPlaylists, setPlaylists] = useState<
+    simplifiedPlaylistObject[] | null
+  >(null);
+  const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let unmounted = false;
+    const source = axios.CancelToken.source();
+    if (query === "") return;
+    axios
+      .get(
+        `https://api.spotify.com/v1/search?${query}&type=track%2Cartist%2Calbum%2Cplaylist&limit=5`,
+        {
+          headers,
+          cancelToken: source.token,
+        }
+      )
+      .then((a) => {
+        if (!unmounted) {
+          const { albums, artists, tracks, playlists } = a.data;
+          setAlbums(albums.items as simplifiedAlbumObject[]);
+          setTracks(tracks.items as fullTrackObject[]);
+          setPlaylists(playlists.items as simplifiedPlaylistObject[]);
+          setArtists(artists.items as fullArtistObject[]);
+          setLoading(false);
+        }
+      })
+      .catch(function (err: Error) {
+        if (!unmounted) {
+          setError(true);
+          setErrorMessage(err.message);
+          setLoading(false);
+          if (axios.isCancel(err)) {
+            console.log(`The request was cancelled: ${err.message}`);
+          } else {
+            console.log(
+              `An error has occured while retrieving search results based on query: ${query} - `,
+              err.message
+            );
+          }
+        }
+      });
+
+    return function () {
+      unmounted = true;
+    };
+  }, [query]);
+
+  return {
+    topTracks,
+    topArtists,
+    topPlaylists,
+    topAlbums,
+    loading,
+    error,
+    errorMessage,
+  };
+};
+
+export const getAllSearchResultsTracks = (query: string, offset?: number) =>
   axios.get(
-    `https://api.spotify.com/v1/search?${searchTerm}&type=artist&limit=7`,
-    {
-      headers,
-    }
+    `https://api.spotify.com/v1/search?${query}&type=track&limit=50${
+      offset ? `&offset=${offset}` : ""
+    }`,
+    { headers }
   );
 
-export const getSearchResults = (query: string, more: string) => {
-  useEffect(() => {}, [query]);
-  return null;
+export const useGetAllSearchResults = (
+  query: string,
+  type: "tracks" | "artists" | "albums" | "playlists",
+  offset: number = 0
+) => {
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+
+  useEffect(() => {
+    let unmounted = false;
+    const source = axios.CancelToken.source();
+    setLoading(true);
+    setError(false);
+    if (query === "") return;
+    const searchType = type.slice(0, -1);
+    axios
+      .get(
+        `https://api.spotify.com/v1/search?${query}&type=${searchType}&limit=20&offset=${offset}`,
+        { headers, cancelToken: source.token }
+      )
+      .then((a) => {
+        let result;
+        if (type === "tracks") result = a.data.tracks;
+        if (type === "artists") result = a.data.artists;
+        if (type === "albums") result = a.data.albums;
+        if (type === "playlists") result = a.data.playlists;
+
+        setSearchResults((prevResults) => {
+          return [...prevResults, ...result.items];
+        });
+        setHasMore(result.next !== null ? true : false);
+        setLoading(false);
+      })
+      .catch(function (err: Error) {
+        if (!unmounted) {
+          setError(true);
+          setErrorMessage(err.message);
+          setLoading(false);
+          if (axios.isCancel(err)) {
+            console.log(`The request was cancelled: ${err.message}`);
+          } else {
+            console.log(
+              `An error has occured while retrieving search results based on query: ${query} - `,
+              err.message
+            );
+          }
+        }
+      });
+
+    return function () {
+      unmounted = true;
+    };
+  }, [query, offset]);
+
+  return { loading, error, errorMessage, searchResults, hasMore };
 };
+
+export const getNextTracks = (url: string) => axios.get(url, { headers });

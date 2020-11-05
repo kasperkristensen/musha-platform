@@ -10,14 +10,18 @@ import {
   millisToMinutesAndSeconds,
 } from "../../../utils/utilFunctions";
 import { MdOpenInNew } from "react-icons/md";
+import {
+  imageObject,
+  simplifiedArtistObject,
+} from "../../../types/spotify/objectInterfaces";
 
 interface TrackItemProps {
-  title: string;
-  artists: string[];
-  images: any[];
+  name: string;
+  artists: simplifiedArtistObject[];
+  images: imageObject[];
   id: string;
   uri: string;
-  duration: string;
+  duration: number;
   num?: string;
   type: "large" | "medium" | "small" | "list";
 }
@@ -224,10 +228,10 @@ export const TrackItem: React.FC<TrackItemProps> = (props) => {
           <StyledOverlay>
             <BsPlayFill onClick={() => playTrack(props.uri)} />
           </StyledOverlay>
-          <img src={props.images[1].url} alt={`Cover Art for ${props.title}`} />
+          <img src={props.images[1].url} alt={`Cover Art for ${props.name}`} />
         </StyledCover>
         <StyledTrackInfo>
-          <StyledTitle>{props.title}</StyledTitle>
+          <StyledTitle>{props.name}</StyledTitle>
           <StyledArtist>{concatArtists(props.artists)}</StyledArtist>
         </StyledTrackInfo>
       </StyledListBox>
@@ -253,10 +257,10 @@ export const TrackItem: React.FC<TrackItemProps> = (props) => {
           <BsPlayFill onClick={() => playTrack(props.uri)} />
           <IoMdMore />
         </StyledOverlay>
-        <img src={props.images[1].url} alt={`Cover Art for ${props.title}`} />
+        <img src={props.images[1].url} alt={`Cover Art for ${props.name}`} />
       </StyledCover>
       <StyledTrackInfo>
-        <StyledTitle>{props.title}</StyledTitle>
+        <StyledTitle>{props.name}</StyledTitle>
         <StyledArtist>{concatArtists(props.artists)}</StyledArtist>
       </StyledTrackInfo>
     </StyledTrack>

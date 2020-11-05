@@ -1,14 +1,22 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import styled from "styled-components";
+import {
+  getRecentlyPlayed,
+  getRecommendationsForTracks,
+  useGetRecentlyPlayed,
+  useGetRecommendationsForTracks,
+  useGetRecommendationsForTracksOnRecents,
+} from "../../../spotify/api_calls";
 import theme from "../../../styles/theme";
+import {
+  playHistoryResponse,
+  recommendationsResponseObject,
+  simplifiedTrackObject,
+} from "../../../types/spotify/objectInterfaces";
 import { SectionTitle } from "../Layout/SectionTitle";
 import { ArrowIcon } from "./ArrowIcon";
 import { TrackItem } from "./TrackItem";
-
-interface TrackSuggestionsProps {
-  suggestedTracks: any | null;
-}
 
 const StyledSuggestions = styled.div`
   ${theme.mixins.flexCenter}
@@ -30,9 +38,7 @@ const Top = styled.div`
   align-items: center;
 `;
 
-const Icon = styled.div.attrs((props) => ({
-  enabled: props.enabled,
-}))`
+const Icon = styled.div`
   display: block;
 `;
 
@@ -41,18 +47,24 @@ const Controls = styled.div`
   width: 70px;
 `;
 
-export const TrackSuggestions: React.FC<TrackSuggestionsProps> = (props) => {
-  const suggestedTracks = props.suggestedTracks;
+export const TrackSuggestions = () => {
   const node = useRef<HTMLDivElement>(null);
-
   const [scrollPosition, setScrollPosition] = useState({
     min: true,
     max: false,
   });
 
+  const {
+    recommendationsResponse,
+    loading,
+    error,
+    errorMessage,
+  } = useGetRecommendationsForTracksOnRecents();
+  const tracks = recommendationsResponse?.tracks;
+
   /**
    * Disables buttons when they can not scroll any further
-   * @param scrollOffset: number
+   * @param scrollOffset
    */
   const handleClick = (scrollOffset: number) => {
     if (node.current !== null) {
@@ -74,8 +86,7 @@ export const TrackSuggestions: React.FC<TrackSuggestionsProps> = (props) => {
       console.log("Client Width: ", node.current.clientWidth);
     }
   };
-
-  return suggestedTracks !== null ? (
+  return tracks ? (
     <>
       <Top>
         <SectionTitle main="Suggested Tracks" size="large" />
@@ -93,10 +104,10 @@ export const TrackSuggestions: React.FC<TrackSuggestionsProps> = (props) => {
         </Controls>
       </Top>
       <StyledSuggestions ref={node}>
-        {suggestedTracks.map((track, i) => (
+        {tracks.map((track, i) => (
           <TrackItem
             key={i}
-            title={track.name}
+            name={track.name}
             artists={track.artists}
             images={track.album.images}
             duration={track.duration_ms}
@@ -107,5 +118,6 @@ export const TrackSuggestions: React.FC<TrackSuggestionsProps> = (props) => {
         ))}
       </StyledSuggestions>
     </>
-  ) : null;
+  ) : // TODO: If loading and if error handling
+  null;
 };

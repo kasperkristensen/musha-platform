@@ -1,7 +1,8 @@
-import { AxiosResponse } from "axios";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { getTrack } from "../../../spotify/api_calls";
+import { useGetTrack } from "../../../spotify/api_calls";
+import { fullTrackObject } from "../../../types/spotify/objectInterfaces";
 import {
   concatArtists,
   millisToMinutesAndSeconds,
@@ -22,19 +23,11 @@ const PositionPointer = styled.div`
 `;
 
 export const NowPlaying: React.FC<NowPlayingProps> = ({ trackId }) => {
-  const [track, setTrack] = useState<any | null>(null);
+  const { track, data, error, errorMessage } = useGetTrack(trackId);
   const [position, setPosition] = useState({
     start: Date.now(),
     currentPosition: 0,
   });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const trackData = await getTrack(trackId);
-      setTrack(trackData.data);
-    };
-    fetchData();
-  }, [trackId]);
 
   useEffect(() => {
     const tickPosition = () => {
@@ -71,5 +64,7 @@ export const NowPlaying: React.FC<NowPlayingProps> = ({ trackId }) => {
         <PositionPointer></PositionPointer>
       </div>
     </div>
-  ) : null;
+  ) : (
+    <p>no DATA</p>
+  );
 };

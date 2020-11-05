@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { BsPlayFill } from "react-icons/bs";
-import theme from "../../../styles/theme";
-import { getUris } from "../../../utils/utilFunctions";
-import { getArtistTopTracks, playTrack } from "../../../spotify/api_calls";
+import theme from "../../../../styles/theme";
+import { getUris } from "../../../../utils/utilFunctions";
+import { getArtistTopTracks, playTrack } from "../../../../spotify/api_calls";
 
 interface SearchItemArtistProps {
-  imgUrl: string;
+  imgUrl: string | null;
   name: string;
   id: string;
 }

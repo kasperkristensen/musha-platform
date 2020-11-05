@@ -21,10 +21,9 @@ export function concatArtists(artists: any[]) {
   return artistsString;
 }
 
-export function millisToMinutesAndSeconds(inputMs: string) {
-  const ms = parseInt(inputMs);
-  const minutes = Math.floor(ms / 60000);
-  const seconds = parseInt(((ms % 60000) / 1000).toFixed(0));
+export function millisToMinutesAndSeconds(inputMs: number) {
+  const minutes = Math.floor(inputMs / 60000);
+  const seconds = parseInt(((inputMs % 60000) / 1000).toFixed(0));
   return seconds == 60
     ? minutes + 1 + ":00"
     : minutes + ":" + (seconds < 10 ? "0" : "") + seconds;

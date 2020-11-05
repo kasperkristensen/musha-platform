@@ -8,9 +8,7 @@ const ListeningParty: React.FC<ListeningPartyProps> = ({}) => {
   const isPartOfParty = true;
 
   return (
-    <OpenLayout>
-      {isPartOfParty ? <ListeningPartyContainer /> : <p>No active party</p>}
-    </OpenLayout>
+    <>{isPartOfParty ? <ListeningPartyContainer /> : <p>No active party</p>}</>
   );
 };
 

@@ -193,7 +193,7 @@ const Favorites: React.FC<favoritesProps> = ({}) => {
         ? topTracks.map((track, i) => (
             <React.Fragment key={i}>
               <TrackItem
-                title={track.name}
+                name={track.name}
                 artists={track.artists}
                 images={track.album.images}
                 duration={track.duration_ms}
