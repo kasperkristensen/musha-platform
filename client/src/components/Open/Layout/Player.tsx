@@ -1,9 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { pausePlayback, startPlayback } from "../../../spotify/api_calls";
+import {
+  pausePlayback,
+  startPlayback,
+  useGetCurrentPlaypack,
+  useGetPlayBackWatcher,
+} from "../../../spotify/api_calls";
 import theme from "../../../styles/theme";
 import { BsPauseFill, BsPlayFill, BsArrowsAngleExpand } from "react-icons/bs";
 import { concatArtists } from "../../../utils/utilFunctions";
+import { usePlayback } from "../../../contexts/playbackContext";
 
 interface PlayerProps {
   track: any;
@@ -12,7 +18,7 @@ interface PlayerProps {
 
 const StyledPlayer = styled.div`
   ${theme.mixins.flexBetween}
-  background-color: white;
+  background-color: var(--liteblack);
   position: fixed;
   bottom: 30px;
   right: 50px;
@@ -81,43 +87,48 @@ const StyledExpand = styled.div`
   font-size: 14px;
 `;
 
-export const Player: React.FC<PlayerProps> = (props) => {
-  let playStatus = props.playStatus;
-  return (
+export const Player: React.FC = () => {
+  const { playback, setPlayback } = usePlayback();
+  let ticker = false;
+  const {
+    playBackSnapshot,
+    loading,
+    error,
+    errorMessage,
+  } = useGetCurrentPlaypack(ticker);
+  return playback ? (
     <StyledPlayer>
-      {props.track ? (
-        <>
-          <StyledTrackInfo>
-            <img src={props.track.album.images[2].url} />
-            <StyledTrackText>
-              <h5>{props.track.name}</h5>
-              <p>{concatArtists(props.track.artists)}</p>
-            </StyledTrackText>
-          </StyledTrackInfo>
-          <StyledControls>
-            <StyledPlayPause>
-              {playStatus === true ? (
-                <BsPauseFill
-                  onClick={() => {
-                    pausePlayback();
-                    playStatus = false;
-                  }}
-                />
-              ) : (
-                <BsPlayFill
-                  onClick={() => {
-                    startPlayback();
-                    playStatus = true;
-                  }}
-                />
-              )}
-            </StyledPlayPause>
-            <StyledExpand>
-              <BsArrowsAngleExpand />
-            </StyledExpand>
-          </StyledControls>
-        </>
-      ) : null}
+      <StyledTrackInfo>
+        <img src={playback.item.album.images[1].url} />
+        <StyledTrackText>
+          <h5>{playback.item.name}</h5>
+          <p>{concatArtists(playback.item.artists)}</p>
+        </StyledTrackText>
+      </StyledTrackInfo>
+      <StyledControls>
+        <StyledPlayPause>
+          {playback.is_playing ? (
+            <BsPauseFill
+              onClick={() => {
+                pausePlayback();
+                ticker = !ticker;
+                playBackSnapshot ? setPlayback(playBackSnapshot) : null;
+              }}
+            />
+          ) : (
+            <BsPlayFill
+              onClick={() => {
+                startPlayback();
+                ticker = !ticker;
+                playBackSnapshot ? setPlayback(playBackSnapshot) : null;
+              }}
+            />
+          )}
+        </StyledPlayPause>
+        <StyledExpand>
+          <BsArrowsAngleExpand />
+        </StyledExpand>
+      </StyledControls>
     </StyledPlayer>
-  );
+  ) : null;
 };

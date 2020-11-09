@@ -2,7 +2,7 @@ import { css } from "styled-components";
 
 const button = css`
   color: white;
-  background-color: var(--black);
+  background-color: var(--mainColor);
   border-radius: var(--border-radius);
   font-size: var(--fz-xs);
   font-weight: 500;
@@ -38,7 +38,7 @@ const mixins = {
   button,
 
   smallButton: css`
-    color: var(--black);
+    color: var(--mainColor);
     border: none;
     border-radius: var(--border-radius);
     padding: 0.5rem 1rem;
@@ -63,7 +63,7 @@ const mixins = {
 
   bigButton: css`
     color: white;
-    background-color: var(--black);
+    background-color: var(--mainColor);
     border-radius: var(--border-radius);
     padding: 1rem 1.75rem;
     font-size: var(--fz-sm);
@@ -80,6 +80,33 @@ const mixins = {
     &:after {
       display: none !important;
     }
+  `,
+
+  standAloneEllipsisOneLine: css`
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    white-space: unset;
+    word-break: break-all;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  `,
+
+  title: css`
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    letter-spacing: normal;
+    text-transform: none;
+  `,
+
+  bigHeading: css`
+    margin: 0;
+    font-size: clamp(45px, 8vw, 70px);
+  `,
+  mediumHeading: css`
+    margin: 0;
+    font-size: clamp(40px, 8vw, 50px);
   `,
 };
 

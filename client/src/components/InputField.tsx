@@ -24,7 +24,7 @@ const InputDiv = styled.div`
 
 const Input = styled.input`
   border: none;
-  border-bottom: 2px solid var(--black);
+  border-bottom: 2px solid var(--mainColor);
   outline: none;
   transition: var(--transition);
   padding: 0.5rem 0 0.5rem 0;

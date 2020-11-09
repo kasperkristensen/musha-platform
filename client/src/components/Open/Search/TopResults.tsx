@@ -2,20 +2,33 @@ import { useRouter } from "next/router";
 import React from "react";
 import styled from "styled-components";
 import theme from "../../../styles/theme";
-import { concatArtists } from "../../../utils/utilFunctions";
 import IconLoader from "../../icons/loader";
-import { SearchItemTrack } from "./Tracks/SearchItemTrack";
 
 interface TopResultsProps {
   type: string;
   query: string | null;
 }
 
-const Container = styled.div``;
+const Container = styled.div`
+  grid-column: 1 / -1;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  position: relative;
+  min-height: 300px;
+`;
 
 const ChildrenContainer = styled.div`
-  ${theme.mixins.flexBetween};
-  flex-direction: row;
+  display: grid;
+  column-gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  overflow-y: hidden;
+  grid-auto-rows: 0;
+  grid-template-rows: 1fr;
 `;
 
 const Top = styled.div`
@@ -31,7 +44,7 @@ const Button = styled.button`
   outline: none;
   &:hover,
   &:focus {
-    color: var(--black);
+    color: var(--mainColor);
   }
 `;
 

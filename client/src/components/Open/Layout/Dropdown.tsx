@@ -3,10 +3,11 @@ import styled, { css } from "styled-components";
 import { transferPlayback } from "../../../spotify/api_calls";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 import theme from "../../../styles/theme";
+import { deviceObject } from "../../../types/spotify/objectInterfaces";
 
 interface DropdownProps {
   value: any;
-  options: any[];
+  options: deviceObject[];
   placeholder: string;
   onChange: any;
   update: any;
@@ -25,7 +26,7 @@ const StyledDropdown = styled.div.attrs((props) => ({
     padding: 0;
     outline: none;
     cursor: pointer;
-    color: var(--black);
+    color: var(--mainColor);
     font-size: var(--fz-xxs);
 
     p {
@@ -36,6 +37,7 @@ const StyledDropdown = styled.div.attrs((props) => ({
   ul {
     position: absolute;
     background-color: white;
+    border-radius: 4px;
     ${(props) =>
       props.direction === "up" &&
       css`
@@ -63,10 +65,11 @@ const StyledDropdown = styled.div.attrs((props) => ({
     color: var(--darkgrey);
     transition: var(--transition);
     cursor: pointer;
+    margin: 10px 0;
 
     &:hover,
     &:active {
-      color: var(--black);
+      color: var(--liteblack);
     }
   }
 `;
@@ -91,9 +94,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
     setOpen(false);
   };
 
-  const handleChange = (selectedValue) => {
-    onChange(selectedValue.name);
+  const handleChange = (selectedValue: deviceObject) => {
     transferPlayback(selectedValue.id);
+    onChange();
     setOpen(false);
   };
 

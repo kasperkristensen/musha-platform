@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import IconLoader from "../../../../components/icons/loader";
-import {
-  getAllSearchResultsTracks,
-  getNextTracks,
-  useGetAllSearchResults,
-} from "../../../../spotify/api_calls";
+import { Divider } from "../../../../components/Open/Layout/Divider";
+import { SearchResultsHeader } from "../../../../components/Open/Search/SearchResultsHeader";
+import { SearchListItem } from "../../../../components/Open/Search/Tracks/SearchListItem";
+import { useGetAllSearchResults } from "../../../../spotify/api_calls";
 
 interface SearchTracksProps {}
 
@@ -44,16 +43,24 @@ const SearchTracks: React.FC<SearchTracksProps> = ({}) => {
   return (
     <div>
       <h1>Showing tracks for {query}</h1>
+      <SearchResultsHeader />
       {searchResults
         ? searchResults.map((track, i) => {
             if (searchResults.length === i + 1) {
               return (
                 <div key={i} ref={lastTrackElement}>
-                  {track.name}
+                  <SearchListItem track={track} index={i} />
                 </div>
               );
             } else {
-              return <div key={i}>{track.name}</div>;
+              return (
+                <>
+                  <div key={i}>
+                    <SearchListItem track={track} index={i} />
+                    <Divider />
+                  </div>
+                </>
+              );
             }
           })
         : null}

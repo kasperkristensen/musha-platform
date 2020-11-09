@@ -1,32 +1,30 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import OpenLayout from "../../../components/Open/Layout/OpenLayout";
 import { SearchItemArtist } from "../../../components/Open/Search/Artists/SearchItemArtist";
-import { TopResultsArtists } from "../../../components/Open/Search/Artists/TopResultsArtists";
 import { SearchItemTrack } from "../../../components/Open/Search/Tracks/SearchItemTrack";
 import { TopResults } from "../../../components/Open/Search/TopResults";
+import { useGetTopResults } from "../../../spotify/api_calls";
 import {
-  topSearchResultsArtists,
-  topSearchResultsTracks,
-  useGetTopResults,
-} from "../../../spotify/api_calls";
-import {
+  fullAlbumObject,
   fullArtistObject,
+  fullTrackObject,
+  imageObject,
+  simplifiedAlbumObject,
   simplifiedArtistObject,
   simplifiedTrackObject,
 } from "../../../types/spotify/objectInterfaces";
 import { concatArtists } from "../../../utils/utilFunctions";
 import IconLoader from "../../../components/icons/loader";
-
-const Content = styled.div`
-  overflow: hidden;
-`;
+import { TopResultsContainer } from "../../../components/Open/Search/TopResultsContainer";
+import { TopResult } from "../../../components/Open/Search/TopResult";
+import {
+  TopAlbum,
+  TopArtist,
+  TopTrack,
+} from "../../../components/Open/Search/TopTypes";
+import { TopTracksContainer } from "../../../components/Open/Search/TopTracks";
+import { SearchItemAlbum } from "../../../components/Open/Search/Albums/SearchItemAlbum";
 
 const Search = () => {
-  const [state, setState] = useState<any | null>({
-    artists: null,
-    tracks: null,
-  });
   const [loaded, setLoaded] = useState<boolean>(false);
   const [query, setQuery] = useState<string>("");
   const {
@@ -59,10 +57,60 @@ const Search = () => {
     fetchData();
   }, [pathName]);
 
+  const getTopResult = () => {
+    if (topTracks && topArtists && topAlbums) {
+      const trackPopularity =
+        topTracks.length > 0 ? topTracks[0].popularity : 0;
+      const artistPopularity =
+        topArtists.length > 0 ? topArtists[0].popularity : 0;
+      let type: string;
+      let result:
+        | fullTrackObject
+        | fullArtistObject
+        | simplifiedAlbumObject
+        | null;
+      if (trackPopularity > artistPopularity) {
+        type = "track";
+        result = topTracks[0];
+        return { result, type };
+      }
+      if (artistPopularity > trackPopularity) {
+        type = "artist";
+        result = topArtists[0];
+        return { result, type };
+      }
+      if (artistPopularity === trackPopularity) {
+        type = "artist";
+        result = topArtists[0];
+        return { result, type };
+      }
+      if (topAlbums.length > 0) {
+        type = "album";
+        result = topAlbums[0];
+        return { result, type };
+      }
+    }
+  };
+
+  const topResult = getTopResult();
+
   return loading ? (
     <IconLoader />
   ) : topTracks && topAlbums && topArtists && topPlaylists ? (
-    <Content>
+    <TopResultsContainer>
+      {topResult && topResult.result && topResult.type === "track" ? (
+        <TopTrack id={topResult.result.id} />
+      ) : null}
+      {topResult && topResult.result && topResult.type === "artist" ? (
+        <TopArtist id={topResult.result.id} />
+      ) : null}
+      {topResult && topResult.result && topResult.type === "album" ? (
+        <TopAlbum id={topResult.result.id} />
+      ) : null}
+      <TopTracksContainer
+        tracks={topTracks.length > 0 ? topTracks : null}
+        query={query}
+      />
       {topArtists.length > 0 ? (
         <TopResults query={query} type="artists">
           {topArtists.map((artist: fullArtistObject, i: number) => (
@@ -75,23 +123,20 @@ const Search = () => {
           ))}
         </TopResults>
       ) : null}
-      {topTracks.length > 0 ? (
-        <TopResults query={query} type="tracks">
-          {topTracks.map((track: simplifiedTrackObject, i: number) => (
-            <SearchItemTrack
+      {topAlbums.length > 0 ? (
+        <TopResults query={query} type="albums">
+          {topAlbums.map((album: simplifiedAlbumObject, i: number) => (
+            <SearchItemAlbum
               key={i}
-              imgUrl={
-                track.album.images.length > 0 ? track.album.images[1].url : null
-              }
-              title={track.name}
-              name={concatArtists(track.artists)}
-              id={track.id}
-              uri={track.uri}
+              imgUrl={album.images.length > 0 ? album.images[1].url : null}
+              name={concatArtists(album.artists)}
+              id={album.id}
+              title={album.name}
             />
           ))}
         </TopResults>
       ) : null}
-    </Content>
+    </TopResultsContainer>
   ) : null;
 };
 

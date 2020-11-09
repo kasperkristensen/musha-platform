@@ -12,11 +12,13 @@ const Loader = styled.div`
   vertical-align: top;
   svg path,
   svg rect {
-    fill: var(--blue);
+    fill: url(#gradiant) white;
   }
 `;
 
-const IconLoader = () => (
+const Gradiant = styled.linearGradient``;
+
+const IconLoader = ({}) => (
   <Loader>
     <svg
       version="1.1"
@@ -29,6 +31,10 @@ const IconLoader = () => (
       viewBox="0 0 24 30"
       xmlSpace="preserve"
     >
+      <Gradiant id="gradiant">
+        <stop offset="0%" stopColor="#ff002a" />
+        <stop offset="100%" stopColor="#ff00ea" />
+      </Gradiant>
       <rect x="0" y="10" width="4" height="10" fill="#333" opacity="0.2">
         <animate
           attributeName="opacity"

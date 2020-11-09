@@ -1,3 +1,8 @@
+import {
+  fullTrackObject,
+  simplifiedTrackObject,
+} from "../types/spotify/objectInterfaces";
+
 export function roundFollowers(followers: number) {
   if (followers >= 1000000) {
     return `${Math.floor(followers / 1000000)}M Followers`;
@@ -29,7 +34,9 @@ export function millisToMinutesAndSeconds(inputMs: number) {
     : minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
 }
 
-export const getUris = (tracks: any[]) => {
+export const getUris = (
+  tracks: fullTrackObject[] | simplifiedTrackObject[]
+) => {
   let uris: string[] = [];
   for (let i = 0; i < tracks.length; i++) {
     uris.push(tracks[i].uri);

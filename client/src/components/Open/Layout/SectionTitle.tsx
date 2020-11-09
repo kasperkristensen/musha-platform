@@ -10,7 +10,7 @@ interface SectionTitleProps {
 const StyledSectionTitle = styled.p.attrs((props) => ({
   size: props.size,
 }))`
-  color: var(--black);
+  color: var(--mainColor);
   font-weight: 600;
   margin: 20px 0;
 

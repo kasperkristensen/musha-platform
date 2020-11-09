@@ -4,11 +4,18 @@ import TransitionStyles from "./TransitionStyles";
 const GlobalStyles = createGlobalStyle`
  
  :root {
-  --black: rgb(71,79,97);
-  --liteblack: #424242;
+  /* --mainColor: rgb(71,79,97); */
+  --liteblack: rgb(45, 46, 50);
+  --darkblack: rgb(37, 38, 42);
+  --mainColor: white;
   --grey: rgb(239, 239, 239);
   --darkgrey: rgb(161, 161, 172);
   --blue: rgb(88, 118, 246);
+  --gradiant: linear-gradient(
+    360deg,
+    rgba(255, 0, 42, 1) 0%,
+    rgba(255, 0, 233, 1) 100%
+  );
 
   --gutter: 50px;
 
@@ -71,7 +78,7 @@ const GlobalStyles = createGlobalStyle`
   /* overflow-x: hidden; */
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
-  color: var(--black);
+  color: var(--mainColor);
   font-family: 'Poppins', sans-serif;
   height: 100%;
   overflow: auto;

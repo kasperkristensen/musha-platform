@@ -22,7 +22,7 @@ const ContainerText = styled.div`
   h3 {
     font-size: var(--fz-xs);
     font-weight: 600;
-    color: var(--black);
+    color: var(--mainColor);
     margin-bottom: 2rem;
   }
   a {
@@ -31,7 +31,7 @@ const ContainerText = styled.div`
     transition: var(--transition);
 
     &:hover {
-      color: var(--black);
+      color: var(--mainColor);
     }
   }
 `;
@@ -47,7 +47,7 @@ const Artist = styled.button`
 
   p {
     font-weight: 400;
-    color: var(--black);
+    color: var(--mainColor);
     font-size: var(--fz-xxs);
   }
 `;

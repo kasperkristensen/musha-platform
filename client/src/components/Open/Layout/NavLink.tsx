@@ -13,19 +13,9 @@ const IconContainer = styled.div`
   ${theme.mixins.flexCenter}
   background-color: transparent;
   transition: var(--transition);
-  /* width: 18px;
-  height: 18px;
-  border-radius: 18px; */
   margin-right: 10px;
-
   width: 14px;
   height: 14px;
-
-  /* .icon {
-    width: 14px;
-    height: 14px;
-    color: var(--black);
-  } */
 `;
 
 const NavItem = styled.a`
@@ -41,6 +31,7 @@ const NavItem = styled.a`
   list-style: none;
   line-height: 0;
   cursor: pointer;
+  color: var(--darkgrey);
 
   &.notActive {
   }
@@ -48,11 +39,11 @@ const NavItem = styled.a`
   &:hover,
   &:focus,
   &.active {
-    color: var(--blue);
-    border-right: 3px solid var(--blue);
+    color: white;
+    border-right: 3px solid white;
 
-    .icon-container .icon {
-      color: var(--blue);
+    ${IconContainer} {
+      color: white;
     }
   }
 `;

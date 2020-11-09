@@ -53,7 +53,14 @@ export interface fullArtistObject {
   uri: string;
 }
 
-export interface simplifiedArtistObject {}
+export interface simplifiedArtistObject {
+  external_urls: externalUrlObject;
+  href: string;
+  id: string;
+  name: string;
+  type: string;
+  uri: string;
+}
 
 export interface fullTrackObject {
   album: simplifiedAlbumObject;
@@ -95,6 +102,23 @@ export interface simplifiedTrackObject {
   uri: string;
 }
 
+export interface fullPlaylistObject {
+  collaborative: boolean;
+  description: string;
+  external_urls: externalUrlObject;
+  followers: followersObject;
+  href: string;
+  id: string;
+  images: imageObject[];
+  name: string;
+  owner: userObject;
+  public: boolean | null;
+  snapshot_id: string;
+  tracks: pagingObject;
+  type: string;
+  uri: string;
+}
+
 export interface simplifiedPlaylistObject {
   collaborative: boolean;
   external_urls: externalUrlObject;
@@ -108,6 +132,13 @@ export interface simplifiedPlaylistObject {
   tracks: tracksObject;
   type: string;
   uri: string;
+}
+
+export interface playlistTrackObject {
+  added_at: string;
+  added_by: userObject;
+  is_local: boolean;
+  track: fullTrackObject;
 }
 
 export interface userObject {}
@@ -195,7 +226,7 @@ export interface playHistoryResponse {
 
 export interface contextObject {
   type: string;
-  href: string;
+  href: string | null;
   external_urls: externalUrlObject;
   uri: string;
 }
@@ -212,4 +243,44 @@ export interface recommendationsSeedObject {
 export interface recommendationsResponseObject {
   seeds: recommendationsSeedObject[];
   tracks: simplifiedTrackObject[];
+}
+
+export interface deviceObject {
+  id: string;
+  is_active: boolean;
+  is_private_session: boolean;
+  is_restricted: boolean;
+  name: string;
+  type: string;
+  volume_percent: number | null;
+}
+
+export interface disallowsObject {
+  interrupting_playback?: boolean;
+  pausing?: boolean;
+  resuming?: boolean;
+  seeking?: boolean;
+  skipping_next?: boolean;
+  skipping_prev?: boolean;
+  toggling_repeat_context?: boolean;
+  toggling_shuffle?: boolean;
+  toggling_repeat_track?: boolean;
+  transferring_playback?: boolean;
+}
+
+export interface actionsObject {
+  actions: disallowsObject;
+}
+
+export interface currentlyPlayingContext {
+  device: deviceObject;
+  repeat_state: string;
+  shuffle_state: boolean;
+  context: contextObject;
+  timestamp: number;
+  progress_ms: number;
+  is_playing: boolean;
+  item: fullTrackObject;
+  currently_playing_type: "track" | "episode" | "ad" | "unknown";
+  actions: actionsObject;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import theme from "../../../styles/theme";
 import Link from "next/link";
@@ -19,12 +19,16 @@ import {
   getAvailableDevices,
   getCurrentPlayback,
   getUser,
+  useGetPlayBackWatcher,
 } from "../../../spotify/api_calls";
 import { Dropdown } from "./Dropdown";
 import { Player } from "./Player";
 import { SubNav } from "./SubNav";
 import { NavLink } from "./NavLink";
 import querystring from "querystring";
+import { PlayBackContext } from "../../../contexts/playbackContext";
+import { currentlyPlayingContext } from "../../../types/spotify/objectInterfaces";
+import IconLoader from "../../icons/loader";
 
 const Container = styled.nav`
   ${theme.mixins.flexBetween};
@@ -37,11 +41,11 @@ const Container = styled.nav`
   text-align: left;
   align-items: flex-start;
   padding-left: 50px;
-  background-color: white;
+  background-color: rgb(45, 46, 50);
   -webkit-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
   box-shadow: 0px 0px 5px 0px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
+  z-index: 10;
 
   @media (${theme.bp.tabletL}) {
     display: none;
@@ -56,7 +60,7 @@ const Content = styled.div`
   min-height: 100vh;
   width: 100%;
   padding: 90px 50px 50px 280px;
-  background-color: rgb(249, 249, 249);
+  background-color: rgb(37, 38, 42);
   overflow: hidden;
 
   @media (${theme.bp.tabletL}) {
@@ -66,29 +70,13 @@ const Content = styled.div`
 
 const ControllerContainer = styled.div`
   ${theme.mixins.flexBetween};
-  background: rgb(0, 0, 0);
-  background: -moz-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(249, 249, 249, 1) 20%
-  );
-  background: -webkit-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(249, 249, 249, 1) 20%
-  );
-  background: linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0) 0%,
-    rgba(249, 249, 249, 1) 20%
-  );
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#000000",endColorstr="#f9f9f9",GradientType=1);
+  background-color: var(--darkblack);
   position: fixed;
   top: 0;
   left: 0;
   padding: 30px 50px 30px 280px;
   width: 100%;
-  z-index: 999;
+  z-index: 9;
 
   @media (${theme.bp.tabletL}) {
     padding: 30px 50px 30px 50px;
@@ -103,7 +91,7 @@ const Logo = styled.div`
   font-weight: 600;
 
   a {
-    color: var(--black);
+    color: var(--mainColor);
     transition: var(--transition);
   }
 
@@ -147,12 +135,13 @@ const StyledSearch = styled.div`
   width: 180px;
   height: 32px;
   border-radius: 32px;
-  border: 1px solid var(--grey);
-  background-color: white;
+  background-color: var(--liteblack);
   transition: var(--transition);
   input {
     border: none;
     width: 85%;
+    background-color: var(--liteblack);
+    color: white;
     font-family: "Poppins", sans-serif;
     padding-top: 3px;
     &:focus,
@@ -168,17 +157,22 @@ const StyledSearch = styled.div`
   }
 `;
 
-export const OpenLayout: React.FC<{}> = ({ children }) => {
+export const OpenLayout: React.FC = ({ children }) => {
   const [state, setState] = useState({
     user: null,
     devices: null,
   });
-  const [device, setDevice] = useState({
-    currentDevice: undefined,
-    currentTrack: undefined,
-    playStatus: false,
-  });
+  const [playback, setPlayback] = useState<currentlyPlayingContext | null>(
+    null
+  );
 
+  const fetchPlayback = async () => {
+    const playbackInfo = await getCurrentPlayback();
+    setPlayback(playbackInfo.data as currentlyPlayingContext);
+    console.log("Updated playback: ", playbackInfo.data);
+  };
+
+  const { playBack, loading, error, errorMessage } = useGetPlayBackWatcher();
   useEffect(() => {
     const fetchData = async () => {
       const data = await getUser();
@@ -192,22 +186,8 @@ export const OpenLayout: React.FC<{}> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const fetchDevice = async () => {
-      const playbackInfo = await getCurrentPlayback();
-      setDevice({
-        currentDevice:
-          playbackInfo.data && playbackInfo.data.device
-            ? playbackInfo.data.device.name
-            : "No Active Device",
-        currentTrack:
-          playbackInfo.data && playbackInfo.data.item
-            ? playbackInfo.data.item
-            : null,
-        playStatus: playbackInfo.data ? playbackInfo.data.is_playing : false,
-      });
-    };
-    fetchDevice();
-    const interval = setInterval(() => fetchDevice(), 5000);
+    fetchPlayback();
+    const interval = setInterval(() => fetchPlayback(), 5000);
 
     return () => {
       clearInterval(interval);
@@ -240,9 +220,11 @@ export const OpenLayout: React.FC<{}> = ({ children }) => {
   } else {
     devices = "";
   }
+  console.log("playback: ", playBack);
   return (
-    <>
+    <PlayBackContext.Provider value={{ playback, setPlayback }}>
       <ControllerContainer>
+        {/* <button onClick={() => router.back()}>Go Back</button> */}
         <StyledSearch>
           <BsSearch className="icon" />
           <input
@@ -299,14 +281,9 @@ export const OpenLayout: React.FC<{}> = ({ children }) => {
           </Menu>
         </StyledNavigation>
         <Dropdown
-          placeholder="No Avtive Device"
-          value={device.currentDevice}
-          onChange={(d) =>
-            setDevice({
-              ...device,
-              currentDevice: d,
-            })
-          }
+          placeholder="No Active Device"
+          value={playBack ? playBack.device.name : "No Active Device"}
+          onChange={() => {}}
           update={() => handleClick()}
           options={
             devices.devices && devices.devices.length > 0 ? devices.devices : []
@@ -314,11 +291,9 @@ export const OpenLayout: React.FC<{}> = ({ children }) => {
           direction="up"
         />
       </Container>
-      {device.currentTrack && typeof device.currentTrack !== "undefined" ? (
-        <Player track={device.currentTrack} playStatus={device.playStatus} />
-      ) : null}
+      <Player />
       <Content> {children} </Content>
-    </>
+    </PlayBackContext.Provider>
   );
 };
 

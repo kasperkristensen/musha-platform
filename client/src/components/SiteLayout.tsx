@@ -24,7 +24,7 @@ const StyledHeader = styled.header`
     font-weight: 600;
 
     a {
-      color: var(--black);
+      color: var(--mainColor);
       transition: var(--transition);
 
       &:hover {
@@ -79,7 +79,7 @@ const StyledLinks = styled.div`
         transition: var(--transition);
 
         &:hover {
-          color: var(--black);
+          color: var(--mainColor);
         }
       }
     }

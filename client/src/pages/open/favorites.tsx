@@ -21,7 +21,7 @@ const TimeRangeButton = styled.button`
   transition: var(--transition);
   padding: 5px 15px;
   background-color: white;
-  color: var(--black);
+  color: var(--mainColor);
   outline: none;
 
   &:hover,
@@ -55,7 +55,7 @@ const ControlButton = styled.button`
   transition: var(--transition);
   padding: 5px 30px;
   background-color: white;
-  color: var(--black);
+  color: var(--mainColor);
   font-size: var(--fz-lg);
   font-weight: 600;
   transition: var(--transition);
@@ -160,10 +160,6 @@ const Favorites: React.FC<favoritesProps> = ({}) => {
     }
   };
 
-  console.log(
-    "Len of toptracks: ",
-    topTracks ? topTracks.length : "not loaded"
-  );
   return (
     <Container>
       <h1>Most Played Songs</h1>

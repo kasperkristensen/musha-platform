@@ -1,17 +1,18 @@
 import React from "react";
 import styled from "styled-components";
-import { playTrack } from "../../../../spotify/api_calls";
+import { playTrack, useGetAlbumTracks } from "../../../../spotify/api_calls";
+import theme from "../../../../styles/theme";
+import { getUris } from "../../../../utils/utilFunctions";
+import IconLoader from "../../../icons/loader";
 
-interface SearchItemTrackProps {
+interface SearchItemAlbumProps {
   imgUrl: string | null;
   title: string;
   name: string;
   id: string;
-  uri: string;
 }
 
 const PlayButtonContainer = styled.div`
-  pointer-events: none;
   position: absolute;
   bottom: -4px;
   -webkit-transform: translateY(8px);
@@ -24,11 +25,7 @@ const PlayButtonContainer = styled.div`
   z-index: 2;
   border-radius: 500px;
   right: -4px;
-
-  &:hover,
-  &:focus {
-    bottom: 40px;
-  }
+  outline: none;
 `;
 const PlayButton = styled.button`
   --size: 48px;
@@ -52,6 +49,7 @@ const PlayButton = styled.button`
   height: var(--size);
   width: var(--size);
   min-width: var(--size);
+  outline: none;
 `;
 
 const SVG = styled.svg`
@@ -71,6 +69,7 @@ const Container = styled.div`
   &:hover,
   &:focus {
     -webkit-box-shadow: var(--shadow);
+    -moz-box-shadow: var(--shadow);
     box-shadow: var(--shadow);
     ${PlayButtonContainer} {
       opacity: 1;
@@ -127,18 +126,22 @@ const Info = styled.div`
   }
 `;
 
-export const SearchItemTrack: React.FC<SearchItemTrackProps> = ({
+const LoadingContainer = styled.div`
+  ${theme.mixins.flexCenter}
+`;
+
+export const SearchItemAlbum: React.FC<SearchItemAlbumProps> = ({
   imgUrl,
   title,
   name,
   id,
-  uri,
 }) => {
-  return (
+  const { tracks, loading } = useGetAlbumTracks(id);
+  return tracks && !loading ? (
     <Container>
       <CoverContainer>
         <PlayButtonContainer>
-          <PlayButton onClick={() => playTrack(uri)}>
+          <PlayButton onClick={() => playTrack(getUris(tracks))}>
             <SVG height="24px" width="24px" role="img" viewBox="0 0 24 24">
               <polygon
                 points="21.57 12 5.98 3 5.98 21 21.57 12"
@@ -157,5 +160,9 @@ export const SearchItemTrack: React.FC<SearchItemTrackProps> = ({
         <p>{name}</p>
       </Info>
     </Container>
+  ) : (
+    <LoadingContainer>
+      <IconLoader />
+    </LoadingContainer>
   );
 };

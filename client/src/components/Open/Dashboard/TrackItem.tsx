@@ -141,6 +141,7 @@ const StyledOverlay = styled.div`
 
 const StyledCoverShadow = styled.img`
   filter: blur(8px);
+  opacity: 0.3;
   position: absolute;
   width: 100%;
   height: 100%;
@@ -165,14 +166,14 @@ const StyledTitle = styled.p.attrs((props) => ({
   type: props.type || "list",
 }))`
   font-weight: 600;
-  color: var(--black);
+  color: var(--mainColor);
   margin: 0;
   font-size: var(--fz-xxs)
     ${(props) =>
       props.type === "large" &&
       css`
         font-weight: 600;
-        color: var(--black);
+        color: var(--mainColor);
       `};
 `;
 
