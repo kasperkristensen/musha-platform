@@ -20,7 +20,7 @@ interface TrackItemProps {
   artists: simplifiedArtistObject[];
   images: imageObject[];
   id: string;
-  uri: string;
+  uri: string | string[];
   duration: number;
   num?: string;
   type: "large" | "medium" | "small" | "list";

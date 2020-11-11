@@ -1,5 +1,6 @@
 import {
   fullTrackObject,
+  savedTrackObject,
   simplifiedTrackObject,
 } from "../types/spotify/objectInterfaces";
 
@@ -42,4 +43,30 @@ export const getUris = (
     uris.push(tracks[i].uri);
   }
   return uris;
+};
+
+export const concatIds = (idArray: string[]) => {
+  let ids: string = "";
+  if (idArray.length - 1 > 1) {
+    let i = 0;
+    while (i < idArray.length) {
+      ids.concat(`${idArray[i]}%`);
+      i++;
+    }
+    ids.concat(idArray[i]);
+  } else {
+    ids = idArray[0];
+  }
+  return ids;
+};
+
+export const isTrackInCollection = (
+  trackId: string,
+  collection: savedTrackObject[]
+) => {
+  const idCollection = collection.map((c) => {
+    return c.track.id;
+  });
+
+  return idCollection.indexOf(trackId) > -1;
 };

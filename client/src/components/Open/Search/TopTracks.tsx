@@ -2,11 +2,15 @@ import { useRouter } from "next/router";
 import React from "react";
 import { BsHeart } from "react-icons/bs";
 import styled, { css } from "styled-components";
-import { playTrack } from "../../../spotify/api_calls";
+import { useGlobal } from "../../../contexts/playbackContext";
+import { pausePlayback, playTrack } from "../../../spotify/api_calls";
 import theme from "../../../styles/theme";
 import { fullTrackObject } from "../../../types/spotify/objectInterfaces";
+import { updatePlayback } from "../../../utils/globalUpdaters";
 import {
   concatArtists,
+  getUris,
+  isTrackInCollection,
   millisToMinutesAndSeconds,
 } from "../../../utils/utilFunctions";
 import IconLoader from "../../icons/loader";
@@ -98,10 +102,9 @@ const Cover = styled.img`
   pointer-events: none;
 `;
 
-const Button = styled.button`
+const ButtonCss = css`
   background: rgba(0, 0, 0, 0.5);
   position: absolute;
-  opacity: 0;
   display: flex;
   justify-content: center;
   outline: none;
@@ -112,6 +115,17 @@ const Button = styled.button`
   color: #fff;
   width: 100%;
   height: 100%;
+  cursor: pointer;
+`;
+
+const Button = styled.button`
+  ${ButtonCss}
+  opacity: 0;
+`;
+
+const ButtonPause = styled.button`
+  ${ButtonCss}
+  opacity: 1;
 `;
 
 const InfoContainer = styled.div`
@@ -247,6 +261,7 @@ const GridItem = styled.div`
   transition: var(--transition);
   user-select: none;
   outline: none;
+  cursor: pointer;
 
   &:hover,
   &:focus {
@@ -269,6 +284,18 @@ export const TopTracksContainer: React.FC<TopTracksProps> = ({
   tracks,
   query,
 }) => {
+  const { global, setGlobal } = useGlobal();
+
+  const fetchPlayback = async () => {
+    global
+      ? setGlobal({
+          ...global,
+          playback: await updatePlayback(),
+        })
+      : null;
+  };
+
+  const collection = global?.savedObjects?.savedTracks;
   const router = useRouter();
   return tracks ? (
     <Section>
@@ -287,12 +314,26 @@ export const TopTracksContainer: React.FC<TopTracksProps> = ({
         aria-label="Track search results"
       >
         {tracks.slice(0, 4).map((track, i) => {
+          let isSaved: boolean;
+          collection
+            ? (isSaved = isTrackInCollection(track.id, collection))
+            : (isSaved = false);
+
+          const currentTrackId = global?.playback?.item?.id;
+          const active = global?.playback?.is_playing;
+
+          let isPlaying: boolean;
+          currentTrackId === track.id && active
+            ? (isPlaying = true)
+            : (isPlaying = false);
           return (
             <GridItem
               key={i}
               role="row"
               aria-rowindex={i + 1}
-              onDoubleClick={() => playTrack(track.uri)}
+              onDoubleClick={() =>
+                playTrack(getUris(tracks.slice(i, tracks.length)))
+              }
             >
               <ItemInfo role="gridcell" aria-colindex={1} tabIndex={-1}>
                 <CoverContainer>
@@ -300,19 +341,55 @@ export const TopTracksContainer: React.FC<TopTracksProps> = ({
                     src={track.album.images[1].url}
                     alt={`Cover image for ${track.name}`}
                   />
-                  <Button onClick={() => playTrack(track.uri)}>
-                    <svg
-                      height="16px"
-                      width="16px"
-                      role="img"
-                      viewBox="0 0 24 24"
+                  {isPlaying ? (
+                    <ButtonPause
+                      onClick={() => {
+                        pausePlayback();
+                        setTimeout(() => fetchPlayback(), 800);
+                      }}
                     >
-                      <polygon
-                        points="21.57 12 5.98 3 5.98 21 21.57 12"
-                        fill="currentColor"
-                      />
-                    </svg>
-                  </Button>
+                      <svg
+                        height="16px"
+                        width="16px"
+                        role="img"
+                        viewBox="0 0 24 24"
+                      >
+                        <rect
+                          x="5"
+                          y="5"
+                          width="4"
+                          height="16"
+                          fill="currentColor"
+                        />
+                        <rect
+                          x="15"
+                          y="5"
+                          width="4"
+                          height="16"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </ButtonPause>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        playTrack(getUris(tracks.slice(i, tracks.length)));
+                        setTimeout(() => fetchPlayback(), 800);
+                      }}
+                    >
+                      <svg
+                        height="16px"
+                        width="16px"
+                        role="img"
+                        viewBox="0 0 24 24"
+                      >
+                        <polygon
+                          points="21.57 12 5.98 3 5.98 21 21.57 12"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </Button>
+                  )}
                 </CoverContainer>
                 <InfoContainer>
                   <Title>{track.name}</Title>

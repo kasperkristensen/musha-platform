@@ -163,23 +163,6 @@ export interface copyrightObject {
   type: string;
 }
 
-export interface pagingObject {
-  href: string;
-  items:
-    | simplifiedTrackObject[]
-    | fullTrackObject[]
-    | simplifiedArtistObject[]
-    | fullArtistObject[]
-    | simplifiedAlbumObject[]
-    | fullAlbumObject[]
-    | simplifiedPlaylistObject[];
-  limit: number;
-  next: string;
-  offset: number;
-  previous: string;
-  total: number;
-}
-
 export interface linkedTrackObject {
   external_urls: externalUrlObject;
   href: string;
@@ -283,4 +266,43 @@ export interface currentlyPlayingContext {
   item: fullTrackObject;
   currently_playing_type: "track" | "episode" | "ad" | "unknown";
   actions: actionsObject;
+}
+
+export interface savedTrackObject {
+  added_at: string;
+  track: fullTrackObject;
+}
+
+export interface savedAlbumObject {
+  added_at: string;
+  album: fullAlbumObject;
+}
+
+export interface pagingObject {
+  href: string;
+  items:
+    | simplifiedTrackObject[]
+    | fullTrackObject[]
+    | simplifiedArtistObject[]
+    | fullArtistObject[]
+    | simplifiedAlbumObject[]
+    | fullAlbumObject[]
+    | simplifiedPlaylistObject[]
+    | savedTrackObject[]
+    | savedAlbumObject[];
+  limit: number;
+  next: string;
+  offset: number;
+  previous: string;
+  total: number;
+}
+
+export interface savedInterface {
+  savedTracks: savedTrackObject[] | null;
+  savedAlbums: savedAlbumObject[] | null;
+}
+
+export interface contextInterface {
+  savedObjects: savedInterface | null;
+  playback: currentlyPlayingContext | null;
 }

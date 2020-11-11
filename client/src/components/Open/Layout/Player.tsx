@@ -1,34 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import {
-  pausePlayback,
-  startPlayback,
-  useGetCurrentPlaypack,
-  useGetPlayBackWatcher,
-} from "../../../spotify/api_calls";
+import { pausePlayback, startPlayback } from "../../../spotify/api_calls";
 import theme from "../../../styles/theme";
 import { BsPauseFill, BsPlayFill, BsArrowsAngleExpand } from "react-icons/bs";
 import { concatArtists } from "../../../utils/utilFunctions";
-import { usePlayback } from "../../../contexts/playbackContext";
+import { useGlobal } from "../../../contexts/playbackContext";
+import { updatePlayback } from "../../../utils/globalUpdaters";
+import { fullTrackObject } from "../../../types/spotify/objectInterfaces";
+import { ProgressBar } from "./ProgressBar";
 
-interface PlayerProps {
-  track: any;
-  playStatus: boolean;
-}
-
-const StyledPlayer = styled.div`
-  ${theme.mixins.flexBetween}
-  background-color: var(--liteblack);
+const PlayerContainer = styled.div`
   position: fixed;
   bottom: 30px;
   right: 50px;
   width: 350px;
   height: 80px;
-  padding: 0 20px;
-  -webkit-box-shadow: var(--shadow);
-  -moz-box-shadow: var(--shadow);
-  box-shadow: var(--shadow);
-  border-radius: 5px;
   z-index: 999;
 
   @media (${theme.bp.tabletL}) {
@@ -38,6 +24,18 @@ const StyledPlayer = styled.div`
     left: 0;
     border-radius: 0px;
   }
+`;
+
+const StyledPlayer = styled.div`
+  ${theme.mixins.flexBetween}
+  height: 100%;
+  position: relative;
+  background-color: var(--liteblack);
+  padding: 0 20px;
+  -webkit-box-shadow: var(--shadow);
+  -moz-box-shadow: var(--shadow);
+  box-shadow: var(--shadow);
+  border-radius: 5px;
 `;
 
 const StyledTrackInfo = styled.div`
@@ -88,47 +86,88 @@ const StyledExpand = styled.div`
 `;
 
 export const Player: React.FC = () => {
-  const { playback, setPlayback } = usePlayback();
-  let ticker = false;
-  const {
-    playBackSnapshot,
-    loading,
-    error,
-    errorMessage,
-  } = useGetCurrentPlaypack(ticker);
-  return playback ? (
-    <StyledPlayer>
-      <StyledTrackInfo>
-        <img src={playback.item.album.images[1].url} />
-        <StyledTrackText>
-          <h5>{playback.item.name}</h5>
-          <p>{concatArtists(playback.item.artists)}</p>
-        </StyledTrackText>
-      </StyledTrackInfo>
-      <StyledControls>
-        <StyledPlayPause>
-          {playback.is_playing ? (
-            <BsPauseFill
-              onClick={() => {
-                pausePlayback();
-                ticker = !ticker;
-                playBackSnapshot ? setPlayback(playBackSnapshot) : null;
-              }}
-            />
-          ) : (
-            <BsPlayFill
-              onClick={() => {
-                startPlayback();
-                ticker = !ticker;
-                playBackSnapshot ? setPlayback(playBackSnapshot) : null;
-              }}
-            />
-          )}
-        </StyledPlayPause>
-        <StyledExpand>
-          <BsArrowsAngleExpand />
-        </StyledExpand>
-      </StyledControls>
-    </StyledPlayer>
+  const { global, setGlobal } = useGlobal();
+  const [progress, setProgress] = useState<string>("0");
+
+  const fetchPlayback = async () => {
+    global
+      ? setGlobal({
+          ...global,
+          playback: await updatePlayback(),
+        })
+      : null;
+  };
+
+  useEffect(() => {
+    fetchPlayback();
+  }, []);
+
+  if (
+    global &&
+    global.playback &&
+    global.playback.is_playing &&
+    global.playback.item
+  ) {
+    const nextUpdateTime =
+      global.playback.item.duration_ms - global.playback.progress_ms;
+    setTimeout(fetchPlayback, nextUpdateTime);
+  }
+
+  useEffect(() => {
+    const tickPosition = () => {
+      if (progress === "0") {
+        let newProgress =
+          global && global.playback && global.playback.item
+            ? (
+                (global.playback.progress_ms /
+                  global.playback.item.duration_ms) *
+                100
+              ).toFixed(2)
+            : "0";
+        setProgress(newProgress);
+      }
+    };
+    const interval = setInterval(() => tickPosition(), 100);
+
+    return () => {
+      clearInterval(interval);
+    };
+  });
+
+  return global && global.playback?.item ? (
+    <PlayerContainer>
+      <StyledPlayer>
+        <ProgressBar />
+        <StyledTrackInfo>
+          <img src={global.playback.item.album.images[1].url} />
+          <StyledTrackText>
+            <h5>{global.playback.item.name}</h5>
+            <p>{concatArtists(global.playback.item.artists)}</p>
+          </StyledTrackText>
+        </StyledTrackInfo>
+        <StyledControls>
+          <StyledPlayPause>
+            {global.playback.is_playing ? (
+              <BsPauseFill
+                onClick={() => {
+                  pausePlayback();
+                  setTimeout(() => fetchPlayback(), 800);
+                }}
+              />
+            ) : (
+              <BsPlayFill
+                onClick={() => {
+                  startPlayback();
+                  setTimeout(() => fetchPlayback(), 800);
+                }}
+              />
+            )}
+          </StyledPlayPause>
+          <StyledExpand>
+            <BsArrowsAngleExpand />
+          </StyledExpand>
+        </StyledControls>
+      </StyledPlayer>
+    </PlayerContainer>
   ) : null;
 };

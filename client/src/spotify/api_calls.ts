@@ -16,12 +16,16 @@ import {
   playHistoryObject,
   playHistoryResponse,
   recommendationsResponseObject,
+  savedAlbumObject,
+  savedInterface,
+  savedTrackObject,
   serverResponse,
   simplifiedAlbumObject,
   simplifiedArtistObject,
   simplifiedPlaylistObject,
   simplifiedTrackObject,
 } from "../types/spotify/objectInterfaces";
+import { concatIds } from "../utils/utilFunctions";
 
 const EXPIRATION_TIME = 1000 * 60 * 60; //1 HOUR IN MILLISECONDS
 
@@ -858,19 +862,13 @@ export const playTrack = async (trackUri: string | string[]) => {
  * https://developer.spotify.com/console/put-current-user-saved-tracks/?ids=7ouMYWpwJ422jRcDASZB7P%2C4VqPOruhp5EdPBeR92t6lQ%2C2takcwOaAZWiXQijPHIx7B
  */
 export const saveTracks = (trackIds: string[]) => {
-  let ids = "";
-  if (trackIds.length - 1 > 1) {
-    let i = 0;
-    while (i < trackIds.length) {
-      ids.concat(`${trackIds[i]}%`);
-      i++;
-    }
-    ids.concat(trackIds[i]);
-  } else {
-    ids = trackIds[0];
-  }
-  const url = `https://api.spotify.com/v1/me/tracks?ids=${ids}`;
+  const url = `https://api.spotify.com/v1/me/tracks?ids=${concatIds(trackIds)}`;
   return axios({ method: "put", url, headers });
+};
+
+export const removeTracks = (trackIds: string[]) => {
+  const url = `https://api.spotify.com/v1/me/tracks?ids=${concatIds(trackIds)}`;
+  return axios({ method: "DELETE", url, headers });
 };
 
 /**
@@ -935,54 +933,41 @@ export const useGetPlayBackWatcher = () => {
   };
 };
 
-export const useGetCurrentPlaypack = (ticker: boolean) => {
-  const [
-    playBackSnapshot,
-    setPlayBack,
-  ] = useState<currentlyPlayingContext | null>(null);
-  const [error, setError] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+export const getSavedObjects = async () => {
+  let savedObjects: savedInterface = { savedTracks: null, savedAlbums: null };
 
-  useEffect(() => {
-    let unmounted = false;
-    const source = axios.CancelToken.source();
-    axios
-      .get(`https://api.spotify.com/v1/me/player`, {
-        headers,
-        cancelToken: source.token,
-      })
-      .then((a) => {
-        if (!unmounted) {
-          setPlayBack(a.data);
-          setLoading(false);
-        }
-      })
-      .catch(function (err: Error) {
-        if (!unmounted) {
-          setError(true);
-          setErrorMessage(err.message);
-          setLoading(false);
-          if (axios.isCancel(err)) {
-            console.log(`The request was cancelled: ${err.message}`);
-          } else {
-            console.log(
-              `An error has occured while retrieving the current playback - `,
-              err.message
-            );
-          }
-        }
-      });
-    return function () {
-      unmounted = true;
-    };
-  }, [ticker]);
-  return {
-    playBackSnapshot,
-    loading,
-    error,
-    errorMessage,
-  };
+  const query = (url: string) => axios.get(url, { headers });
+  let albumRes: pagingObject = await (
+    await query(`https://api.spotify.com/v1/me/albums?offset=0&limit=50`)
+  ).data;
+  savedObjects.savedAlbums = albumRes.items as savedAlbumObject[];
+
+  let trackRes: pagingObject = await (
+    await query(`https://api.spotify.com/v1/me/tracks?offset=0&limit=50`)
+  ).data;
+  savedObjects.savedTracks = trackRes.items as savedTrackObject[];
+
+  if (albumRes.next) {
+    while (albumRes.next) {
+      albumRes = await (await query(albumRes.next)).data;
+      savedObjects.savedAlbums = [
+        ...savedObjects.savedAlbums,
+        ...(albumRes.items as savedAlbumObject[]),
+      ];
+    }
+  }
+
+  if (trackRes.next) {
+    while (trackRes.next) {
+      trackRes = await (await query(trackRes.next)).data;
+      savedObjects.savedTracks = [
+        ...savedObjects.savedTracks,
+        ...(trackRes.items as savedTrackObject[]),
+      ];
+    }
+  }
+
+  return savedObjects;
 };
 
 /**
@@ -1181,7 +1166,12 @@ export const useGetAllSearchResults = (
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<
+    | fullTrackObject[]
+    | fullArtistObject[]
+    | simplifiedAlbumObject[]
+    | fullPlaylistObject[]
+  >([]);
   const [hasMore, setHasMore] = useState<boolean>(false);
 
   useEffect(() => {

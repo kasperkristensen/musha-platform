@@ -4,6 +4,7 @@ import { Divider } from "../../../../components/Open/Layout/Divider";
 import { SearchResultsHeader } from "../../../../components/Open/Search/SearchResultsHeader";
 import { SearchListItem } from "../../../../components/Open/Search/Tracks/SearchListItem";
 import { useGetAllSearchResults } from "../../../../spotify/api_calls";
+import { fullTrackObject } from "../../../../types/spotify/objectInterfaces";
 
 interface SearchTracksProps {}
 
@@ -39,13 +40,12 @@ const SearchTracks: React.FC<SearchTracksProps> = ({}) => {
     },
     [loading, hasMore]
   );
-
   return (
     <div>
       <h1>Showing tracks for {query}</h1>
       <SearchResultsHeader />
       {searchResults
-        ? searchResults.map((track, i) => {
+        ? (searchResults as fullTrackObject[]).map((track, i) => {
             if (searchResults.length === i + 1) {
               return (
                 <div key={i} ref={lastTrackElement}>
@@ -54,12 +54,10 @@ const SearchTracks: React.FC<SearchTracksProps> = ({}) => {
               );
             } else {
               return (
-                <>
-                  <div key={i}>
-                    <SearchListItem track={track} index={i} />
-                    <Divider />
-                  </div>
-                </>
+                <div key={i}>
+                  <SearchListItem track={track} index={i} />
+                  <Divider />
+                </div>
               );
             }
           })

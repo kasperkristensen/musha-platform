@@ -23,7 +23,7 @@ const PositionPointer = styled.div`
 `;
 
 export const NowPlaying: React.FC<NowPlayingProps> = ({ trackId }) => {
-  const { track, data, error, errorMessage } = useGetTrack(trackId);
+  const { track, error, errorMessage } = useGetTrack(trackId);
   const [position, setPosition] = useState({
     start: Date.now(),
     currentPosition: 0,

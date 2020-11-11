@@ -18,6 +18,7 @@ import { GoHeart } from "react-icons/go";
 import {
   getAvailableDevices,
   getCurrentPlayback,
+  getSavedObjects,
   getUser,
   useGetPlayBackWatcher,
 } from "../../../spotify/api_calls";
@@ -26,8 +27,12 @@ import { Player } from "./Player";
 import { SubNav } from "./SubNav";
 import { NavLink } from "./NavLink";
 import querystring from "querystring";
-import { PlayBackContext } from "../../../contexts/playbackContext";
-import { currentlyPlayingContext } from "../../../types/spotify/objectInterfaces";
+import { GlobalContext } from "../../../contexts/playbackContext";
+import {
+  contextInterface,
+  currentlyPlayingContext,
+  savedInterface,
+} from "../../../types/spotify/objectInterfaces";
 import IconLoader from "../../icons/loader";
 
 const Container = styled.nav`
@@ -162,17 +167,18 @@ export const OpenLayout: React.FC = ({ children }) => {
     user: null,
     devices: null,
   });
-  const [playback, setPlayback] = useState<currentlyPlayingContext | null>(
-    null
-  );
+
+  const [context, setContext] = useState<contextInterface | null>(null);
 
   const fetchPlayback = async () => {
     const playbackInfo = await getCurrentPlayback();
-    setPlayback(playbackInfo.data as currentlyPlayingContext);
-    console.log("Updated playback: ", playbackInfo.data);
+    const savedInfo = await getSavedObjects();
+    setContext({
+      playback: playbackInfo.data as currentlyPlayingContext,
+      savedObjects: savedInfo,
+    });
   };
 
-  const { playBack, loading, error, errorMessage } = useGetPlayBackWatcher();
   useEffect(() => {
     const fetchData = async () => {
       const data = await getUser();
@@ -185,13 +191,27 @@ export const OpenLayout: React.FC = ({ children }) => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    fetchPlayback();
-    const interval = setInterval(() => fetchPlayback(), 5000);
+  useEffect(() => {}, []);
 
-    return () => {
-      clearInterval(interval);
+  // useEffect(() => {
+  //   fetchPlayback();
+  //   const interval = setInterval(() => fetchPlayback(), 5000);
+
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, []);
+
+  useEffect(() => {
+    const fetchGlobal = async () => {
+      const playbackInfo = await getCurrentPlayback();
+      const savedInfo = await getSavedObjects();
+      setContext({
+        playback: playbackInfo.data as currentlyPlayingContext,
+        savedObjects: savedInfo,
+      });
     };
+    fetchGlobal();
   }, []);
 
   const handleClick = () => {
@@ -220,9 +240,8 @@ export const OpenLayout: React.FC = ({ children }) => {
   } else {
     devices = "";
   }
-  console.log("playback: ", playBack);
   return (
-    <PlayBackContext.Provider value={{ playback, setPlayback }}>
+    <GlobalContext.Provider value={{ global: context, setGlobal: setContext }}>
       <ControllerContainer>
         {/* <button onClick={() => router.back()}>Go Back</button> */}
         <StyledSearch>
@@ -282,7 +301,11 @@ export const OpenLayout: React.FC = ({ children }) => {
         </StyledNavigation>
         <Dropdown
           placeholder="No Active Device"
-          value={playBack ? playBack.device.name : "No Active Device"}
+          value={
+            context?.playback?.device
+              ? context?.playback?.device.name
+              : "No Active Device"
+          }
           onChange={() => {}}
           update={() => handleClick()}
           options={
@@ -293,7 +316,7 @@ export const OpenLayout: React.FC = ({ children }) => {
       </Container>
       <Player />
       <Content> {children} </Content>
-    </PlayBackContext.Provider>
+    </GlobalContext.Provider>
   );
 };
 

@@ -74,7 +74,7 @@ const main = async () => {
     res.cookie(STATE_KEY, state);
 
     const scope =
-      "user-read-private user-read-email user-read-recently-played user-top-read user-follow-read user-follow-modify playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private user-modify-playback-state user-read-playback-state user-read-playback-position ugc-image-upload user-read-currently-playing user-library-modify";
+      "user-read-private user-read-email user-read-recently-played user-library-read user-top-read user-follow-read user-follow-modify playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private user-modify-playback-state user-read-playback-state user-read-playback-position ugc-image-upload user-read-currently-playing user-library-modify";
 
     res.redirect(
       "https://accounts.spotify.com/authorize?" +

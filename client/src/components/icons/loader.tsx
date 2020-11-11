@@ -2,12 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 const Loader = styled.div`
-  margin: 0 0 2em;
-  height: 100px;
-  width: 50px;
   text-align: center;
-  padding: 1em;
-  margin: 0 auto 1em;
   display: inline-block;
   vertical-align: top;
   svg path,
@@ -18,7 +13,7 @@ const Loader = styled.div`
 
 const Gradiant = styled.linearGradient``;
 
-const IconLoader = ({}) => (
+const IconLoader = ({ size = 30 }) => (
   <Loader>
     <svg
       version="1.1"
@@ -26,8 +21,8 @@ const IconLoader = ({}) => (
       xmlns="http://www.w3.org/2000/svg"
       x="0px"
       y="0px"
-      width="24px"
-      height="30px"
+      width={size === 30 ? "24px" : "12.8px"}
+      height={size === 30 ? "30px" : "16px"}
       viewBox="0 0 24 30"
       xmlSpace="preserve"
     >

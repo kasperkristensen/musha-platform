@@ -33,7 +33,7 @@ const PlayButtonContainer = styled.div`
 const PlayButton = styled.button`
   --size: 48px;
   color: #fff;
-  background: var(--gradiant);
+  background-color: var(--darkblack);
   position: relative;
   z-index: 1;
   --size: 40px;

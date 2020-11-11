@@ -21,7 +21,7 @@ const TimeRangeButton = styled.button`
   transition: var(--transition);
   padding: 5px 15px;
   background-color: white;
-  color: var(--mainColor);
+  color: var(--liteblack);
   outline: none;
 
   &:hover,
@@ -55,7 +55,6 @@ const ControlButton = styled.button`
   transition: var(--transition);
   padding: 5px 30px;
   background-color: white;
-  color: var(--mainColor);
   font-size: var(--fz-lg);
   font-weight: 600;
   transition: var(--transition);
@@ -63,6 +62,7 @@ const ControlButton = styled.button`
   -moz-box-shadow: var(--shadow);
   box-shadow: var(--shadow);
   outline: none;
+  color: var(--liteblack);
 
   &:hover,
   &:focus {
@@ -75,6 +75,7 @@ const GenerateButton = styled.button`
   width: 2rem;
   height: 2rem;
   background-color: white;
+  color: var(--liteblack);
   border-radius: 8px;
   ${theme.mixins.flexCenter};
   transition: var(--transition);
@@ -116,7 +117,7 @@ const Container = styled.div``;
 
 const Divider = styled.span`
   display: block;
-  border-top: 1px solid var(--grey);
+  border-top: 1px solid var(--liteblack);
   width: 100%;
 `;
 
@@ -193,7 +194,7 @@ const Favorites: React.FC<favoritesProps> = ({}) => {
                 artists={track.artists}
                 images={track.album.images}
                 duration={track.duration_ms}
-                uri={track.uri}
+                uri={getUris(topTracks.slice(i, topTracks.length))}
                 id={track.id}
                 num={i + 1 < 10 ? `0${i + 1}` : i + 1}
                 type="list"

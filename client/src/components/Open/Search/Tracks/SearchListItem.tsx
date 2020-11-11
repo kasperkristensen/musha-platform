@@ -1,13 +1,26 @@
 import React from "react";
-import { BsHeart } from "react-icons/bs";
+import { BsHeart, BsHeartFill } from "react-icons/bs";
 import styled, { css } from "styled-components";
-import { playTrack } from "../../../../spotify/api_calls";
+import { useGlobal } from "../../../../contexts/playbackContext";
+import {
+  getSavedObjects,
+  pausePlayback,
+  playTrack,
+  removeTracks,
+  saveTracks,
+} from "../../../../spotify/api_calls";
 import theme from "../../../../styles/theme";
 import { fullTrackObject } from "../../../../types/spotify/objectInterfaces";
 import {
+  updatePlayback,
+  updateSavedObjects,
+} from "../../../../utils/globalUpdaters";
+import {
   concatArtists,
+  isTrackInCollection,
   millisToMinutesAndSeconds,
 } from "../../../../utils/utilFunctions";
+import IconLoader from "../../../icons/loader";
 
 interface SearchListItemProps {
   track: fullTrackObject;
@@ -39,7 +52,6 @@ const Num = styled.span`
 const PlayButton = styled.button`
   position: absolute;
   opacity: 0;
-  pointer-events: none;
   display: flex;
   -webkit-box-pack: center;
   -ms-flex-pack: center;
@@ -54,6 +66,48 @@ const PlayButton = styled.button`
   width: 100%;
   height: 100%;
   padding: 0;
+  outline: none;
+`;
+
+const PauseButton = styled.button`
+  position: absolute;
+  display: flex;
+  opacity: 0;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  position: absolute;
+  background: transparent;
+  border: 0;
+  color: var(--mainColor);
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  outline: none;
+`;
+
+const AnimationDiv = styled.div`
+  position: absolute;
+  display: flex;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  position: absolute;
+  background: transparent;
+  border: 0;
+  color: var(--mainColor);
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  outline: none;
+  width: 16px;
+  height: 16px;
 `;
 
 const PlayIcon = styled.svg`
@@ -70,6 +124,7 @@ const Index = styled.div`
   align-items: center;
   cursor: pointer;
   justify-self: end;
+  outline: none;
 `;
 
 const IndexContainer = styled.div`
@@ -90,6 +145,7 @@ const Info = styled.div`
   -webkit-box-align: center;
   -ms-flex-align: center;
   align-items: center;
+  outline: none;
 `;
 
 const Cover = styled.img`
@@ -169,6 +225,7 @@ const ExplicitBadgeContainer = styled.span`
   -ms-flex-pack: center;
   justify-content: center;
   line-height: 24px;
+  outline: none;
 `;
 
 const ExplicitBadge = styled.span`
@@ -182,12 +239,13 @@ const ExplicitBadge = styled.span`
   -ms-flex-align: center;
   align-items: center;
   background-color: var(--mainColor);
-  color: white;
+  color: var(--liteblack);
   border-radius: 2px;
   text-transform: uppercase;
   font-size: var(--fz-xxxs);
   min-width: 16px;
   height: 16px;
+  outline: none;
 `;
 
 const Album = styled.div`
@@ -199,6 +257,7 @@ const Album = styled.div`
   -ms-flex-align: center;
   align-items: center;
   overflow: hidden;
+  outline: none;
 `;
 
 const AlbumLink = styled.a`
@@ -207,6 +266,7 @@ const AlbumLink = styled.a`
   font-size: var(--fz-sm);
   text-decoration: none;
   transition: var(--transition);
+  outline: none;
 
   &:hover,
   &:focus {
@@ -223,6 +283,7 @@ const Controls = styled.div`
   -ms-flex-align: center;
   align-items: center;
   grid-column: last;
+  outline: none;
 `;
 
 const SaveToLibrary = styled.button`
@@ -233,6 +294,17 @@ const SaveToLibrary = styled.button`
   padding: 0;
   opacity: 0;
   line-height: 0;
+  outline: none;
+`;
+
+const SavedToLibrary = styled.button`
+  margin-right: 16px;
+  background: transparent;
+  border: 0;
+  color: white;
+  padding: 0;
+  line-height: 0;
+  outline: none;
 `;
 
 const Duration = styled.div`
@@ -246,6 +318,7 @@ const Duration = styled.div`
   -ms-flex-pack: end;
   justify-content: flex-end;
   overflow: hidden;
+  outline: none;
 `;
 
 const Container = styled.div`
@@ -269,6 +342,14 @@ const Container = styled.div`
     }
     ${SaveToLibrary} {
       opacity: 1;
+    }
+
+    ${PauseButton} {
+      opacity: 1;
+    }
+
+    ${AnimationDiv} {
+      opacity: 0;
     }
   }
 `;
@@ -295,21 +376,108 @@ export const SearchListItem: React.FC<SearchListItemProps> = ({
 
   //   return elements;
   // }
+  const { global, setGlobal } = useGlobal();
+
+  const fetchPlayback = async () => {
+    global
+      ? setGlobal({
+          ...global,
+          playback: await updatePlayback(),
+        })
+      : null;
+  };
+
+  const fetchSavedObjects = async () => {
+    global
+      ? setGlobal({
+          ...global,
+          savedObjects: await updateSavedObjects(),
+        })
+      : null;
+  };
+
+  const collection = global?.savedObjects?.savedTracks;
+  let isSaved: boolean;
+  collection
+    ? (isSaved = isTrackInCollection(track.id, collection))
+    : (isSaved = false);
+
+  const currentTrackId = global?.playback?.item?.id;
+  const active = global?.playback?.is_playing;
+
+  let isPlaying: boolean;
+  currentTrackId === track.id && active
+    ? (isPlaying = true)
+    : (isPlaying = false);
 
   return (
-    <Container onDoubleClick={() => playTrack(track.uri)} role="row">
+    <Container
+      onDoubleClick={() => {
+        playTrack(track.uri);
+        setTimeout(() => fetchPlayback(), 800);
+      }}
+      role="row"
+    >
       <Grid>
         <Index role="gridcell" aria-colindex={1} tabIndex={-1}>
           <IndexContainer>
-            <Num>{index + 1}</Num>
-            <PlayButton onClick={() => playTrack(track.uri)}>
-              <PlayIcon height="32" role="img" width="32" viewBox="0 0 24 24">
-                <polygon
-                  points="21.57 12 5.98 3 5.98 21 21.57 12"
-                  fill="currentColor"
-                />
-              </PlayIcon>
-            </PlayButton>
+            {isPlaying ? (
+              <>
+                <AnimationDiv>
+                  <IconLoader size={0} />
+                </AnimationDiv>
+                <PauseButton
+                  onClick={() => {
+                    pausePlayback();
+                    setTimeout(() => fetchPlayback(), 800);
+                  }}
+                >
+                  <PlayIcon
+                    height="32"
+                    role="img"
+                    width="32"
+                    viewBox="0 0 24 24"
+                  >
+                    <rect
+                      x="5"
+                      y="3"
+                      width="4"
+                      height="18"
+                      fill="currentColor"
+                    />
+                    <rect
+                      x="15"
+                      y="3"
+                      width="4"
+                      height="18"
+                      fill="currentColor"
+                    />
+                  </PlayIcon>
+                </PauseButton>
+              </>
+            ) : (
+              <>
+                <Num>{index + 1}</Num>
+                <PlayButton
+                  onClick={() => {
+                    playTrack(track.uri);
+                    fetchPlayback();
+                  }}
+                >
+                  <PlayIcon
+                    height="32"
+                    role="img"
+                    width="32"
+                    viewBox="0 0 24 24"
+                  >
+                    <polygon
+                      points="21.57 12 5.98 3 5.98 21 21.57 12"
+                      fill="currentColor"
+                    />
+                  </PlayIcon>
+                </PlayButton>
+              </>
+            )}
           </IndexContainer>
         </Index>
         <Info role="gridcell" aria-colindex={2} tabIndex={-1}>
@@ -343,9 +511,27 @@ export const SearchListItem: React.FC<SearchListItemProps> = ({
           <AlbumLink>{track.album.name}</AlbumLink>
         </Album>
         <Controls role="gridcell" aria-colindex={4} tabIndex={-1}>
-          <SaveToLibrary>
-            <BsHeart />
-          </SaveToLibrary>
+          {isSaved ? (
+            <SavedToLibrary
+              onClick={() => {
+                removeTracks([track.id]);
+                isSaved = !isSaved;
+                setTimeout(() => fetchSavedObjects(), 800);
+              }}
+            >
+              <BsHeartFill />
+            </SavedToLibrary>
+          ) : (
+            <SaveToLibrary
+              onClick={() => {
+                saveTracks([track.id]);
+                isSaved = !isSaved;
+                setTimeout(() => fetchSavedObjects(), 800);
+              }}
+            >
+              <BsHeart />
+            </SaveToLibrary>
+          )}
           <Duration>{millisToMinutesAndSeconds(track.duration_ms)}</Duration>
         </Controls>
       </Grid>
